@@ -39,9 +39,9 @@ from ansiblereview import Success, Result
 
 def error_msg(message, lineno, filename, show_file):
     if show_file:
-        output = "{0}:{1} {2}".format(filename, lineno, message)
+        output = "{0}: line {1}: {2}".format(filename, lineno, message)
     else:
-        output = "{0} {1}".format(lineno, message)
+        output = "line {0}: {1}".format(lineno, message)
     return output
 
 
@@ -72,7 +72,7 @@ def indent_checker(filename, show_file=False):
         return errors
 
 
-def yamlreview(filename):
+def yamlreview(filename, settings):
     errors = indent_checker(filename)
     if errors:
         result = Result()

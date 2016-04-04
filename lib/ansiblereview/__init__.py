@@ -1,12 +1,13 @@
-from functool import partial
+from functools import partial
+from fabric.api import local
 
 
 class Standard(object):
     def __init__(self, standard_dict):
-        self.name = standard_dict.get(name)
-        self.version = standard_dict.get(version)
-        self.check = standard_dict.get(check)
-        self.types = standard_dict.get(types)
+        self.name = standard_dict.get("name")
+        self.version = standard_dict.get("version")
+        self.check = standard_dict.get("check")
+        self.types = standard_dict.get("types")
 
 
 class Result(object):
@@ -19,10 +20,10 @@ class Success(Result):
         self.stderr = ""
 
 
-def lintcheck(rulename, rulesdir=""):
-    return partial(ansiblelint(rulename=rulename, rulesdir=rulesdir))
+def lintcheck(rulename):
+    return partial(ansiblelint,rulename)
 
 
-def ansiblelint(rulename, filename, rulesdir):
-    return fab.local("ansible-lint -r %s -R -t %s %s" %
-            (rulesdir, rulename, filename))
+def ansiblelint(rulename, filename, settings):
+    return local("ansible-lint -r %s -R -t %s %s" %
+            (settings.rulesdir, rulename, filename), capture=False)
