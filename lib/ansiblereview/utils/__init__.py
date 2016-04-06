@@ -1,6 +1,6 @@
 from __future__ import print_function
 from fabric.colors import red, green, yellow
-import re
+import importlib
 import sys
 from distutils.version import LooseVersion
 
@@ -22,15 +22,39 @@ def info(message):
     print(green("INFO: %s" % message))
 
 
-def find_version(filename, version_regex="^# Standards: \([0-9]+(\.[0-9])+\)"):
-    version_re = re.compile(version_regex)
-    with open(filename, 'r') as f:
-        for line in f:
-            match = version_re.match(line)
-            if match:
-                return match.group(0)
-    return None
-
-
 def standards_latest(standards):
-    return max([standard.version for standard in standards], key=LooseVersion)
+    return max([standard.version for standard in standards if standard.version], key=LooseVersion)
+
+
+def review(candidate, settings):
+    errors = False
+
+    sys.path.append(settings.directory)
+    standards = importlib.import_module('standards')
+
+    if not candidate.version:
+        candidate.version = standards_latest(standards.standards)
+        error("%s %s does not present standards version. "
+              "Using latest standards version %s" %
+              (type(candidate).__name__, candidate.path, candidate.version))
+        errors = True
+    else:
+        info("%s %s declares standards version %s" %
+             (type(candidate).__name__, candidate.path, candidate.version))
+
+    for standard in standards.standards:
+        if type(candidate).__name__.lower() not in standard.types:
+            continue
+        result = standard.check(candidate.path, settings)
+        if result.failed:
+            if not hasattr(standard, 'version') or \
+                    LooseVersion(standard.version) > LooseVersion(candidate.version):
+                warn("Future standard \"%s\" not met:\n%s" %
+                     (standard.name, '\n'.join([result.stdout, result.stderr])))
+            else:
+                error("Standard \"%s\" not met:\n%s" %
+                      (standard.name, '\n'.join([result.stdout, result.stderr])))
+                errors = True
+        else:
+            info("Standard \"%s\" met" % standard.name)
+    return int(errors)

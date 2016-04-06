@@ -34,7 +34,7 @@ BAD:
 from __future__ import print_function
 import re
 import sys
-from ansiblereview import Success, Result
+from ansiblereview import Result
 
 
 def error_msg(message, lineno, filename, show_file):
@@ -74,13 +74,11 @@ def indent_checker(filename, show_file=False):
 
 def yamlreview(filename, settings):
     errors = indent_checker(filename)
+    result = Result()
     if errors:
-        result = Result()
         result.failed = True
         result.stderr = "\n".join(errors)
         result.stdout = ""
-    else:
-        result = Success()
     return result
 
 

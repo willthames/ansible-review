@@ -1,5 +1,7 @@
 from functools import partial
 from fabric.api import local
+import re
+import os
 
 
 class Standard(object):
@@ -11,14 +13,29 @@ class Standard(object):
 
 
 class Result(object):
-    pass
-
-
-class Success(Result):
     def __init__(self):
         self.failed = False
         self.stderr = ""
         self.stdout = ""
+
+
+class Playbook(object):
+    def __init__(self, playbookfile):
+        self.path = playbookfile
+        self.version = find_version(playbookfile)
+
+
+class Role(object):
+    def __init__(self, rolesdir):
+        self.path = rolesdir
+        self.version = find_version(
+            os.path.join(rolesdir, "meta", "main.yml"))
+
+
+class Inventory(object):
+    def __init__(self, inventoryfile):
+        self.path = inventoryfile
+        self.find_version = None
 
 
 def lintcheck(rulename):
@@ -28,3 +45,13 @@ def lintcheck(rulename):
 def ansiblelint(rulename, filename, settings):
     return local("ansible-lint -r %s -R -t %s --ignore-roles %s" %
                  (settings.rulesdir, rulename, filename), capture=True)
+
+
+def find_version(filename, version_regex="^# Standards: \([0-9]+(\.[0-9])+\)"):
+    version_re = re.compile(version_regex)
+    with open(filename, 'r') as f:
+        for line in f:
+            match = version_re.match(line)
+            if match:
+                return match.group(0)
+    return None
