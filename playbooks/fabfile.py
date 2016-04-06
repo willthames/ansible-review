@@ -39,7 +39,7 @@ def install_roles(playbook):
 
 @task
 def syntax_check(playbook):
-    result = local("ansible-playbook --syntax-check %s" % playbook, capture=False)
+    result = local("ansible-playbook --syntax-check %s" % playbook, capture=True)
     if result.failed:
         message = "FATAL: Playbook syntax check failed for %s:\n%s" % \
             (playbook, result.stderr)
@@ -79,13 +79,15 @@ def review(playbook, settings):
             continue
         result = standard.check(playbook, settings)
         if result.failed:
-            if LooseVersion(standard.version) < LooseVersion(playbook_version):
+            if LooseVersion(standard.version) > LooseVersion(playbook_version):
                 utils.warn("Future standard \"%s\" not met:\n%s" %
-                     (standard.name, result.stderr))
+                     (standard.name, '\n'.join([result.stdout, result.stderr])))
             else:
-                utils.error("Declared standard \"%s\" not met:\n%s" %
-                      (standard.name, result.stderr))
+                utils.error("Standard \"%s\" not met:\n%s" %
+                      (standard.name, '\n'.join([result.stdout, result.stderr])))
                 errors = True
+        else:
+            utils.info("Standard \"%s\" met" % standard.name)
     return int(errors)
 
 

@@ -4,6 +4,7 @@ import re
 import sys
 from distutils.version import LooseVersion
 
+
 def abort(message):
     print(red("FATAL: %s" % message), file=sys.stderr)
     sys.exit(1)
@@ -14,11 +15,11 @@ def error(message):
 
 
 def warn(message):
-    print(yellow("WARN: %s" % message), file=sys.stderr)
+    print(yellow("WARN: %s" % message))
 
 
 def info(message):
-    print(green("INFO: %s" % message), file=sys.stderr)
+    print(green("INFO: %s" % message))
 
 
 def find_version(filename, version_regex="^# Standards: \([0-9]+(\.[0-9])+\)"):

@@ -78,6 +78,7 @@ def yamlreview(filename, settings):
         result = Result()
         result.failed = True
         result.stderr = "\n".join(errors)
+        result.stdout = ""
     else:
         result = Success()
     return result

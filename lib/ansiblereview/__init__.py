@@ -18,12 +18,13 @@ class Success(Result):
     def __init__(self):
         self.failed = False
         self.stderr = ""
+        self.stdout = ""
 
 
 def lintcheck(rulename):
-    return partial(ansiblelint,rulename)
+    return partial(ansiblelint, rulename)
 
 
 def ansiblelint(rulename, filename, settings):
-    return local("ansible-lint -r %s -R -t %s %s" %
-            (settings.rulesdir, rulename, filename), capture=False)
+    return local("ansible-lint -r %s -R -t %s --ignore-roles %s" %
+                 (settings.rulesdir, rulename, filename), capture=True)

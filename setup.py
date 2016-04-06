@@ -11,7 +11,7 @@ exec(open('lib/ansiblereview/version.py').read())
 setup(
     name='ansible-review',
     version=__version__,
-    description=('reviews ansible playbooks, roles and inventory and suggests improvements')
+    description=('reviews ansible playbooks, roles and inventory and suggests improvements'),
     keywords='ansible, code review',
     author='Will Thames',
     author_email='will@thames.id.au',
