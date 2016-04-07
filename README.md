@@ -18,11 +18,29 @@ export $PATH=$PATH:`pwd`/bin
 # Usage
 
 ```
-ansible-review reviewtarget
+ansible-review reviewtarget [target2...]
 ```
 
-ansible-review will review inventory directories, role
-directories and playbooks.
+ansible-review will review inventory files, role
+files, python code (modules, plugins) and playbooks.
+
+*TODO*
+
+* The goal is that each file that changes in a
+  changeset should be reviewable simply by passing
+  those files as the arguments to ansible-review.
+* Roles are slightly harder, and sub-roles are yet
+  harder still (currently just using `-R` to process
+  roles works very well, but doesn't examine the
+  structure of the role)
+* Using `{{ playbook_dir }}` in sub roles is so far
+  very hard.
+* This should work against various repository styles
+  - per-role repository
+  - roles with sub-roles
+  - per-playbook repository
+* It should work with rolesfiles and with local roles.
+
 
 # Reviews
 
@@ -32,6 +50,21 @@ against which to review.
 ansible-review comes with a couple of built-in checks, such as
 a playbook syntax checker and a hook to ansible-lint. You define your
 own standards.
+
+## Configuration
+
+If your standards (and optionally inhouse lint rules) are set up, create
+a configuration file in the appropriate location (this will depend on
+your operating system)
+
+The location can be found by using `ansible-review` with no arguments.
+
+```
+[rules]
+lint = /path/to/your/ansible/lint/rules
+standards = /path/to/your/standards/rules
+```
+
 
 ## Standards file
 
@@ -87,13 +120,7 @@ def check_role_for_something(rolesdir, settings):
 ```
 
 The ansiblelint check is ready out of the box, and just takes a list of
-IDs or tags to check. You can add your own ansible-lint rules in a directory
-and then pass `-d /path/to/ansible/lint/rules` 
-
-# TODO
-
-* Add configuration file for ansible lint rules path and ansible review rules
-path.
-
+IDs or tags to check. You can point to your own ansible-lint rules
+using the configuration file or `-d /path/to/ansible/lint/rules`
 
 
