@@ -19,7 +19,7 @@ setup(
     package_dir={'': 'lib'},
     packages=find_packages('lib'),
     zip_safe=False,
-    install_requires=['ansible-lint', 'pyyaml'],
+    install_requires=['ansible-lint', 'pyyaml', 'applibs', 'Fabric'],
     scripts=['bin/ansible-review'],
     license='MIT',
     test_suite="test"
