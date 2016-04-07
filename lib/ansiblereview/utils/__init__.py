@@ -35,10 +35,9 @@ def review(candidate, settings):
 
     if not candidate.version:
         candidate.version = standards_latest(standards.standards)
-        error("%s %s does not present standards version. "
-              "Using latest standards version %s" %
-              (type(candidate).__name__, candidate.path, candidate.version))
-        errors = True
+        warn("%s %s does not present standards version. "
+             "Using latest standards version %s" %
+             (type(candidate).__name__, candidate.path, candidate.version))
     else:
         info("%s %s declares standards version %s" %
              (type(candidate).__name__, candidate.path, candidate.version))
@@ -61,6 +60,5 @@ def review(candidate, settings):
                 info("Proposed standard \"%s\" met" % standard.name)
             else:
                 info("Standard \"%s\" met" % standard.name)
-
 
     return int(errors)

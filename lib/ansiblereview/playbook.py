@@ -1,11 +1,8 @@
 from fabric.api import task, local
 
 from ansiblereview import utils, Playbook
-from ansiblereview.version import __version__
 
-import optparse
 import os
-import sys
 
 
 @task

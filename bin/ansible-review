@@ -4,7 +4,7 @@ import optparse
 import os
 import sys
 from ansiblereview.version import __version__
-from ansiblereview import playbook, inventory, role
+from ansiblereview import playbook, inventory, role, code
 from appdirs import AppDirs
 from fabric.api import env
 from fabric.state import output
@@ -30,6 +30,10 @@ def role_root(arg):
 def _isinrole(arg):
     role_parent = os.path.basename(os.path.dirname(arg))
     return role_parent in ['tasks', 'handlers', 'defaults', 'templates', 'vars', 'meta']
+
+
+def _iscodefile(arg):
+    return arg.endswith('.py')
 
 
 def main(args):
@@ -62,6 +66,8 @@ def main(args):
             role.review(role_root(arg), options)
         elif _isinventory(arg):
             inventory.review(arg, options)
+        elif _iscodefile(arg):
+            code.review(arg, options)
         else:
             playbook.review(arg, options)
 

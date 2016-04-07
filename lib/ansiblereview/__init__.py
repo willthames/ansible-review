@@ -35,7 +35,13 @@ class Role(object):
 class Inventory(object):
     def __init__(self, inventoryfile):
         self.path = inventoryfile
-        self.find_version = None
+        self.version = find_version(inventoryfile)
+
+
+class Code(object):
+    def __init__(self, codefile):
+        self.path = codefile
+        self.version = find_version(codefile)
 
 
 def lintcheck(rulename):

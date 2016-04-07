@@ -16,9 +16,9 @@ def no_vars_in_host_file(inventory, options):
         try:
             yaml.safe_load(f)
         except Exception, e:
-            for (line, lineno) in enumerate(f):
-                if line.contains(':vars]'):
-                    errors.append("line %s: contains a vars definition" % lineno)
+            for (lineno, line) in enumerate(f):
+                if ':vars]' in line:
+                    errors.append("line %s: contains a vars definition" % lineno + 1)
     result = Result()
     if errors:
         result.stderr = '\n'.join(errors)
