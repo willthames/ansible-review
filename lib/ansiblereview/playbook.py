@@ -44,14 +44,3 @@ def review(playbook, settings):
     # install_roles(playbook)
     syntax_check(playbook)
     return utils.review(Playbook(playbook), settings)
-
-
-if __name__ == '__main__':
-    parser = optparse.OptionParser("%prog playbook.yml",
-                                   version="%prog " + __version__)
-    parser.add_option('-d', dest='directory',
-                      help="Location of standards rules")
-    parser.add_option('-r', dest='rulesdir',
-                      help="Location of additional lint rules")
-    options, args = parser.parse_args(sys.argv)
-    sys.exit(review(args[1], options))

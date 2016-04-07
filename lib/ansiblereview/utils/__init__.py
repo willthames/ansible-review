@@ -1,6 +1,7 @@
 from __future__ import print_function
 from fabric.colors import red, green, yellow
 import importlib
+import os
 import sys
 from distutils.version import LooseVersion
 
@@ -29,7 +30,7 @@ def standards_latest(standards):
 def review(candidate, settings):
     errors = False
 
-    sys.path.append(settings.directory)
+    sys.path.append(os.path.expanduser(settings.rulesdir))
     standards = importlib.import_module('standards')
 
     if not candidate.version:
@@ -47,7 +48,7 @@ def review(candidate, settings):
             continue
         result = standard.check(candidate.path, settings)
         if result.failed:
-            if not hasattr(standard, 'version') or \
+            if not standard.version or \
                     LooseVersion(standard.version) > LooseVersion(candidate.version):
                 warn("Future standard \"%s\" not met:\n%s" %
                      (standard.name, '\n'.join([result.stdout, result.stderr])))
@@ -56,5 +57,10 @@ def review(candidate, settings):
                       (standard.name, '\n'.join([result.stdout, result.stderr])))
                 errors = True
         else:
-            info("Standard \"%s\" met" % standard.name)
+            if not standard.version:
+                info("Proposed standard \"%s\" met" % standard.name)
+            else:
+                info("Standard \"%s\" met" % standard.name)
+
+
     return int(errors)

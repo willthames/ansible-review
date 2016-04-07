@@ -43,8 +43,14 @@ def lintcheck(rulename):
 
 
 def ansiblelint(rulename, filename, settings):
-    return local("ansible-lint -r %s -R -t %s --ignore-roles %s" %
-                 (settings.rulesdir, rulename, filename), capture=True)
+    lintrules = ""
+    norecurse = "--ignore-roles "
+    if settings.lintdir:
+        lintrules = "-r %s -R " % os.path.expanduser(settings.lintdir)
+    if not settings.recurse:
+        norecurse = ""
+    return local("ansible-lint %s -t %s %s %s" %
+                 (lintrules, rulename, norecurse, filename), capture=True)
 
 
 def find_version(filename, version_regex="^# Standards: \([0-9]+(\.[0-9])+\)"):

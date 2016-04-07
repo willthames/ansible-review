@@ -5,8 +5,10 @@ import os
 import sys
 from ansiblereview.version import __version__
 from ansiblereview import playbook, inventory, role
+from appdirs import AppDirs
 from fabric.api import env
 from fabric.state import output
+import ConfigParser
 
 
 env.colorize_errors = True
@@ -35,10 +37,21 @@ def main(args):
     parser = optparse.OptionParser("%prog playbook_file|role_file|inventory_file",
                                    version="%prog " + __version__)
 
-    parser.add_option('-d', dest='directory',
-                      help="Location of standards rules")
-    parser.add_option('-r', dest='rulesdir',
-                      help="Location of additional lint rules")
+    config_dir = AppDirs("ansible-review", "com.github.willthames").user_config_dir
+    config_file = os.path.join(config_dir, "config.ini")
+    config = ConfigParser.RawConfigParser({'standards': None, 'lint': None})
+    config.read(config_file)
+    rulesdir = config.get('rules', 'standards')
+    lintdir = config.get('rules', 'lint')
+    parser.add_option('-d', dest='rulesdir',
+                      help="Location of standards rules %s" % rulesdir,
+                      default = rulesdir)
+    parser.add_option('-r', dest='lintdir',
+                      help="Location of additional lint rules %s" % lintdir,
+                      default=lintdir)
+    parser.add_option('-R', dest='recurse', default=False,
+                      help="Recurse into roles (good if you have control "
+                      "over the role, less useful otherwise)")
     options, args = parser.parse_args(args)
     if len(args) == 0:
         parser.print_help(file=sys.stderr)
