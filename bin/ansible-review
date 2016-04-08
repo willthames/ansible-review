@@ -5,36 +5,17 @@ import optparse
 import os
 import sys
 from ansiblereview.version import __version__
-from ansiblereview import playbook, inventory, role, code
+from ansiblereview import classify
+from ansiblereview.utils import error, info
 from appdirs import AppDirs
 from fabric.api import env
 from fabric.state import output
 import ConfigParser
 
-
 env.colorize_errors = True
 output.warnings = False
 output.running = False
 env.warn_only = True
-
-
-def _isinventory(filename):
-    return 'inventory' in os.path.split(filename) or filename == 'hosts'
-
-
-def role_root(arg):
-    # converts /path/to/roles/rolename/tasks/install.yml
-    # to rolename
-    return os.path.dirname(os.path.dirname(args))
-
-
-def _isinrole(arg):
-    role_parent = os.path.basename(os.path.dirname(arg))
-    return role_parent in ['tasks', 'handlers', 'defaults', 'templates', 'vars', 'meta']
-
-
-def _iscodefile(arg):
-    return arg.endswith('.py')
 
 
 def main(args):
@@ -61,18 +42,17 @@ def main(args):
 
     if len(args) == 0:
         parser.print_help(file=sys.stderr)
-        print("\nUsing configuration file: %s" % config_file, file=sys.stderr)
+        info("\nUsing configuration file: %s" % config_file, file=sys.stderr)
         return 1
 
+    errors = 0
     for arg in args:
-        if _isinrole(arg):
-            role.review(role_root(arg), options)
-        elif _isinventory(arg):
-            inventory.review(arg, options)
-        elif _iscodefile(arg):
-            code.review(arg, options)
+        candidate = classify(arg)
+        if candidate:
+            errors = errors + candidate.review(options)
         else:
-            playbook.review(arg, options)
+            error("Couldn't classify file %s" % arg)
+    return errors
 
 
 if __name__ == '__main__':

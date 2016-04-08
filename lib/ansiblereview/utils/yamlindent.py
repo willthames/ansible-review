@@ -37,15 +37,12 @@ import sys
 from ansiblereview import Result
 
 
-def error_msg(message, lineno, filename, show_file):
-    if show_file:
-        output = "{0}: line {1}: {2}".format(filename, lineno, message)
-    else:
-        output = "line {0}: {1}".format(lineno, message)
+def error_msg(message, lineno, filename):
+    output = "{0}:{1}: {2}".format(filename, lineno, message)
     return output
 
 
-def indent_checker(filename, show_file=False):
+def indent_checker(filename):
     with open(filename, 'r') as f:
         indent_regex = re.compile("^(?P<whitespace>\s*)(?P<rest>.*)$")
         lineno = 0
@@ -63,17 +60,17 @@ def indent_checker(filename, show_file=False):
                     errors.append(
                         error_msg("lines starting with '- ' should have same "
                                   "or less indentation than previous line",
-                                  lineno, filename, show_file))
+                                  lineno, filename))
                 elif curr_indent - prev_indent != 2:
                     errors.append(
                         error_msg("indentation should only increase by 2 chars",
-                                  lineno, filename, show_file))
+                                  lineno, filename))
             prev_indent = curr_indent
         return errors
 
 
-def yamlreview(filename, settings):
-    errors = indent_checker(filename)
+def yamlreview(candidate, settings):
+    errors = indent_checker(candidate.path)
     result = Result()
     if errors:
         result.failed = True

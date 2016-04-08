@@ -45,7 +45,7 @@ def review(candidate, settings):
     for standard in standards.standards:
         if type(candidate).__name__.lower() not in standard.types:
             continue
-        result = standard.check(candidate.path, settings)
+        result = standard.check(candidate, settings)
         if result.failed:
             if not standard.version or \
                     LooseVersion(standard.version) > LooseVersion(candidate.version):

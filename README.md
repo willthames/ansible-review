@@ -80,7 +80,7 @@ use_modules_instead_of_command = Standard(dict(
     name = "Use modules instead of commands",
     version = "0.2",
     check = ansiblelint('ANSIBLE0005,ANSIBLE0006'),
-    types = ['playbook', 'role'],
+    types = ['playbook', 'task'],
 ))
 
 standards = [
@@ -101,23 +101,18 @@ a message to be displayed but won't constitute a failure.
 A typical standards check will look like:
 
 ```
-def check_playbook_for_something(playbookfile, settings):
+def check_playbook_for_something(candidate, settings):
     result = Result() # empty result is a success with no output
-    with open(playbookfile, 'r') as f:
+    with open(candidate.path, 'r') as f:
         do_something
         if unexpected:
             result.failed = True
-            result.stderr = "Something unexpected happened in %s" % playbook
-    return result
-
-def check_role_for_something(rolesdir, settings):
-    result = Result()
-    look_for_file_in_role_doing_something
-    if unexpected:
-        result.failed = True
-        result.stderr = "Weird stuff in role %s" % rolesdir
+            result.stderr = "Something unexpected happened in %s" % candidate.path
     return result
 ```
+
+All standards check take a candidate object, which has a path attribute.
+The type can be inferred from the class name (i.e. `type(candidate).__name__`)
 
 The ansiblelint check is ready out of the box, and just takes a list of
 IDs or tags to check. You can point to your own ansible-lint rules

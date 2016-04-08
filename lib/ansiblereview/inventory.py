@@ -1,5 +1,5 @@
 import ansible.inventory
-from ansiblereview import Result, Inventory, utils
+from ansiblereview import Result
 import yaml
 
 try:
@@ -10,9 +10,9 @@ except ImportError:
     ANSIBLE = 1
 
 
-def no_vars_in_host_file(inventory, options):
+def no_vars_in_host_file(candidate, options):
     errors = []
-    with open(inventory, 'r') as f:
+    with open(candidate.path, 'r') as f:
         try:
             yaml.safe_load(f)
         except Exception, e:
@@ -26,20 +26,16 @@ def no_vars_in_host_file(inventory, options):
     return result
 
 
-def parse(inventory, options):
+def parse(candidate, options):
     result = Result()
     try:
         if ANSIBLE > 1:
             loader = ansible.parsing.dataloader.DataLoader()
             var_manager = ansible.vars.VariableManager()
-            ansible.inventory.Inventory(loader=loader, variable_manager=var_manager, host_list=inventory)
+            ansible.inventory.Inventory(loader=loader, variable_manager=var_manager, host_list=candidate.path)
         else:
-            ansible.inventory.Inventory(inventory)
+            ansible.inventory.Inventory(candidate.path)
     except Exception, e:
         result.stderr = "Inventory is broken: %s" % e.message
         result.failed = True
     return result
-
-
-def review(inventoryfile, settings):
-    return utils.review(Inventory(inventoryfile), settings)
