@@ -4,6 +4,8 @@ import importlib
 import os
 import sys
 from distutils.version import LooseVersion
+from appdirs import AppDirs
+import ConfigParser
 
 
 def abort(message):
@@ -28,7 +30,7 @@ def standards_latest(standards):
 
 
 def review(candidate, settings):
-    errors = False
+    errors = 0
 
     sys.path.append(os.path.expanduser(settings.rulesdir))
     standards = importlib.import_module('standards')
@@ -50,15 +52,32 @@ def review(candidate, settings):
             if not standard.version or \
                     LooseVersion(standard.version) > LooseVersion(candidate.version):
                 warn("Future standard \"%s\" not met:\n%s" %
-                     (standard.name, '\n'.join([result.stdout, result.stderr])))
+                     (standard.name, result.stdout + result.stderr))
             else:
                 error("Standard \"%s\" not met:\n%s" %
-                      (standard.name, '\n'.join([result.stdout, result.stderr])))
-                errors = True
+                      (standard.name, result.stdout + result.stderr))
+                errors = errors + 1
         else:
             if not standard.version:
                 info("Proposed standard \"%s\" met" % standard.name)
             else:
                 info("Standard \"%s\" met" % standard.name)
 
-    return int(errors)
+    return errors
+
+
+class Settings(object):
+    def __init__(self, values):
+        self.rulesdir = values.get('rulesdir')
+        self.lintdir = values.get('lintdir')
+
+
+def read_config():
+    config_dir = AppDirs("ansible-review", "com.github.willthames").user_config_dir
+    config_file = os.path.join(config_dir, "config.ini")
+    config = ConfigParser.RawConfigParser({'standards': None, 'lint': None})
+    config.read(config_file)
+
+    return Settings(dict(rulesdir=config.get('rules', 'standards'),
+                         lintdir = config.get('rules', 'lint')))
+

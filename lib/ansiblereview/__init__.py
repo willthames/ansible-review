@@ -25,6 +25,10 @@ class Standard(object):
         self.check = standard_dict.get("check")
         self.types = standard_dict.get("types")
 
+    def __repr__(self):
+        return "Standard: %s (version: %s, types: %s)" % (
+                self.name, self.version, self.types)
+
 
 class Result(object):
     def __init__(self):
@@ -96,15 +100,18 @@ def classify(filename):
     parentdir = os.path.basename(os.path.dirname(filename))
     if parentdir in ['tasks', 'handlers']:
         return Task(filename)
-    if parentdir in ['vars', 'defaults']:
+    if parentdir in ['vars', 'defaults', 'group_vars', 'host_vars']:
         return Vars(filename)
     if parentdir == 'meta':
         return Meta(filename)
-    if parentdir in ['group_vars', 'host_vars', 'inventory']:
+    if parentdir in ['inventory']:
         return Inventory(filename)
-    if parentdir in ['library', 'lookup_plugins', 'callback_plugins', 'filter_plugins']:
+    if parentdir in ['library', 'lookup_plugins', 'callback_plugins', 
+            'filter_plugins'] or filename.endswith('.py'):
         return Code(filename)
     if filename.endswith('.yml') or filename.endswith('.yaml'):
+        if 'rolesfile' in filename:
+            return None
         return Playbook(filename)
     if parentdir in ['templates']:
         return Template(filename)

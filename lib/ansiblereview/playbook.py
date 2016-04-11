@@ -1,6 +1,8 @@
+from collections import defaultdict
 from fabric.api import task, local
 
-from ansiblereview import utils, Playbook
+from ansiblereview import utils, Playbook, Result
+import ansiblelint
 
 import os
 
@@ -41,3 +43,21 @@ def review(playbook, settings):
     # install_roles(playbook)
     syntax_check(playbook)
     return utils.review(Playbook(playbook), settings)
+
+def repeated_names(playbook, settings):
+    result = Result()
+    yaml = ansiblelint.utils.parse_yaml_linenumbers(playbook.path)
+    namelines = defaultdict(list)
+    if yaml:
+        for task in ansiblelint.utils.get_action_tasks(yaml, playbook):
+            if 'name' in task:
+                namelines['name'].append(task['__line__'])
+        for (name, lines) in namelines.items():
+            if len(lines) > 1:
+                for line in lines:
+                    errors.append("{0}:{1}:Task/handler name {2} appears multiple times".format(
+                                  playbook.path, line, name))
+    if errors:
+        result.stderr='\n'.join(errors)
+        result.failed = True
+    return result
