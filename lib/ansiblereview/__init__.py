@@ -41,12 +41,16 @@ class Candidate(object):
     def __init__(self, filename):
         self.path = filename
         self.version = find_version(filename)
+        self.type = type(self).__name__
 
     def review(self, settings):
         return utils.review(self, settings)
 
     def __repr__(self):
         return "%s (%s)" % (type(self).__name__, self.path)
+
+    def __getitem__(self, item):
+        return self.__dict__.get(item)
 
 
 class RoleFile(Candidate):

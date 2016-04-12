@@ -28,9 +28,6 @@ def main(args):
     parser.add_option('-r', dest='lintdir',
                       help="Location of additional lint rules: [%s]" % settings.lintdir,
                       default=settings.lintdir)
-    parser.add_option('-R', dest='recurse', default=False,
-                      help="Recurse into roles (good if you have control "
-                      "over the role, less useful otherwise)")
     options, args = parser.parse_args(args)
 
     if len(args) == 0:

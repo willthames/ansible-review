@@ -48,6 +48,7 @@ def repeated_names(playbook, settings):
     result = Result()
     yaml = ansiblelint.utils.parse_yaml_linenumbers(playbook.path)
     namelines = defaultdict(list)
+    errors = []
     if yaml:
         for task in ansiblelint.utils.get_action_tasks(yaml, playbook):
             if 'name' in task:
