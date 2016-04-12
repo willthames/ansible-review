@@ -32,15 +32,20 @@ def standards_latest(standards):
 def review(candidate, settings):
     errors = 0
 
+    if not settings.rulesdir:
+        abort("Standards directory is not set on command line or in configuration file - aborting")
     sys.path.append(os.path.expanduser(settings.rulesdir))
-    standards = importlib.import_module('standards')
+    try:
+        standards = importlib.import_module('standards')
+    except ImportError:
+        abort("Could not find standards in directory %s" % settings.rulesdir)
 
     if not candidate.version:
         candidate.version = standards_latest(standards.standards)
         warn("%s %s does not present standards version. "
              "Using latest standards version %s" %
              (type(candidate).__name__, candidate.path, candidate.version))
-    else:
+    elif not settings.quiet:
         info("%s %s declares standards version %s" %
              (type(candidate).__name__, candidate.path, candidate.version))
 
@@ -57,7 +62,7 @@ def review(candidate, settings):
                 error("Standard \"%s\" not met:\n%s" %
                       (standard.name, result.stdout + result.stderr))
                 errors = errors + 1
-        else:
+        elif not settings.quiet:
             if not standard.version:
                 info("Proposed standard \"%s\" met" % standard.name)
             else:
@@ -70,6 +75,7 @@ class Settings(object):
     def __init__(self, values):
         self.rulesdir = values.get('rulesdir')
         self.lintdir = values.get('lintdir')
+        self.quiet = values.get('quiet', False)
 
 
 def read_config():
