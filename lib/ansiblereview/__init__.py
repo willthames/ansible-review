@@ -100,6 +100,10 @@ class File(Candidate):
     pass
 
 
+class Rolesfile(Candidate):
+    pass
+
+
 def classify(filename):
     parentdir = os.path.basename(os.path.dirname(filename))
     if parentdir in ['tasks', 'handlers']:
@@ -115,7 +119,7 @@ def classify(filename):
         return Code(filename)
     if filename.endswith('.yml') or filename.endswith('.yaml'):
         if 'rolesfile' in filename:
-            return None
+            return Rolesfile(filename)
         return Playbook(filename)
     if parentdir in ['templates']:
         return Template(filename)
