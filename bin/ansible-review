@@ -39,9 +39,13 @@ def main(args):
 
     errors = 0
     for arg in args:
+        if ':' in arg:
+            (arg, lines) = arg.split(":")
+        else:
+            lines = None
         candidate = classify(arg)
         if candidate:
-            errors = errors + candidate.review(options)
+            errors = errors + candidate.review(options, lines)
         else:
             error("Couldn't classify file %s" % arg)
     return errors

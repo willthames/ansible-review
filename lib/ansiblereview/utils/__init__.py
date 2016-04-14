@@ -29,7 +29,21 @@ def standards_latest(standards):
     return max([standard.version for standard in standards if standard.version], key=LooseVersion)
 
 
-def review(candidate, settings):
+def lines_ranges(lines_spec):
+    if not lines_spec:
+        return None
+    result = []
+    for interval in lines_spec.split(","):
+        (start, end) = interval.split("-")
+        result.append(xrange(int(start), int(end)+1))
+    return result
+
+
+def is_line_in_ranges(line, ranges):
+    return not ranges or any([line in r for r in ranges])
+
+
+def review(candidate, settings, lines=None):
     errors = 0
 
     if not settings.rulesdir:
@@ -53,20 +67,22 @@ def review(candidate, settings):
         if type(candidate).__name__.lower() not in standard.types:
             continue
         result = standard.check(candidate, settings)
-        if result.failed:
+        for err in [err for err in result.errors
+                      if is_line_in_ranges(err.lineno, lines_ranges(lines))]:
             if not standard.version or \
                     LooseVersion(standard.version) > LooseVersion(candidate.version):
-                warn("Future standard \"%s\" not met:\n%s" %
-                     (standard.name, result.stdout + result.stderr))
+                warn("Future standard \"%s\" not met:\n%s:%s" %
+                     (standard.name, candidate.path, err))
             else:
-                error("Standard \"%s\" not met:\n%s" %
-                      (standard.name, result.stdout + result.stderr))
+                error("Standard \"%s\" not met:\n%s:%s" %
+                      (standard.name, candidate.path, err))
                 errors = errors + 1
-        elif not settings.quiet:
-            if not standard.version:
-                info("Proposed standard \"%s\" met" % standard.name)
-            else:
-                info("Standard \"%s\" met" % standard.name)
+        else:
+            if not settings.quiet:
+                if not standard.version:
+                    info("Proposed standard \"%s\" met" % standard.name)
+                else:
+                    info("Standard \"%s\" met" % standard.name)
 
     return errors
 

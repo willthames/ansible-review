@@ -45,7 +45,6 @@ def review(playbook, settings):
     return utils.review(Playbook(playbook), settings)
 
 def repeated_names(playbook, settings):
-    result = Result()
     yaml = ansiblelint.utils.parse_yaml_linenumbers(playbook.path)
     namelines = defaultdict(list)
     errors = []
@@ -55,10 +54,5 @@ def repeated_names(playbook, settings):
                 namelines['name'].append(task['__line__'])
         for (name, lines) in namelines.items():
             if len(lines) > 1:
-                for line in lines:
-                    errors.append("{0}:{1}:Task/handler name {2} appears multiple times".format(
-                                  playbook.path, line, name))
-    if errors:
-        result.stderr='\n'.join(errors)
-        result.failed = True
-    return result
+                errors.append(Error(line, "Task/handler name %s appears multiple times" % name))
+    return Result(playbook, errors)

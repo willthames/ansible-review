@@ -102,12 +102,12 @@ A typical standards check will look like:
 
 ```
 def check_playbook_for_something(candidate, settings):
-    result = Result() # empty result is a success with no output
+    result = Result(candidate.path) # empty result is a success with no output
     with open(candidate.path, 'r') as f:
-        do_something
-        if unexpected:
-            result.failed = True
-            result.stderr = "Something unexpected happened in %s" % candidate.path
+        for (lineno, line) in enumerate(f):
+            if line is dodgy:
+                # enumerate is 0-based so add 1 to lineno
+                result.errors.append(Error(lineno+1, "Line is dodgy: reasons"))
     return result
 ```
 

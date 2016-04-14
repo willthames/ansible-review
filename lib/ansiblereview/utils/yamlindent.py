@@ -37,11 +37,6 @@ import sys
 from ansiblereview import Result
 
 
-def error_msg(message, lineno, filename):
-    output = "{0}:{1}: {2}".format(filename, lineno, message)
-    return output
-
-
 def indent_checker(filename):
     with open(filename, 'r') as f:
         indent_regex = re.compile("^(?P<whitespace>\s*)(?P<rest>.*)$")
@@ -57,33 +52,25 @@ def indent_checker(filename):
             curr_indent = len(match.group('whitespace'))
             if curr_indent - prev_indent > 0:
                 if match.group('rest').startswith('- '):
-                    errors.append(
-                        error_msg("lines starting with '- ' should have same "
-                                  "or less indentation than previous line",
-                                  lineno, filename))
+                    errors.append(Error(lineno, "lines starting with '- ' should have same "
+                                  "or less indentation than previous line"))
                 elif curr_indent - prev_indent != 2:
-                    errors.append(
-                        error_msg("indentation should only increase by 2 chars",
-                                  lineno, filename))
+                    errors.append(Error(lineno, "indentation should only increase by 2 chars"))
             prev_indent = curr_indent
         return errors
 
 
 def yamlreview(candidate, settings):
     errors = indent_checker(candidate.path)
-    result = Result()
-    if errors:
-        result.failed = True
-        result.stderr = "\n".join(errors)
-        result.stdout = ""
-    return result
+    return Result(candidate.path, errors)
 
 
 if __name__ == '__main__':
     args = sys.argv[1:] or [sys.stdin]
     rc = 0
     for arg in args:
-        for error in indent_checker(arg, len(args) > 1):
-            print("ERROR: " + error, file=sys.stderr)
+        result = yamlreview(arg, Settings())
+        for error in result.errors():
+            print("ERROR: %s:%s: %s" % (arg, error.lineno, error.message), file=sys.stderr)
             rc = 1
     sys.exit(rc)

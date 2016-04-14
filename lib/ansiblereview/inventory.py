@@ -18,16 +18,12 @@ def no_vars_in_host_file(candidate, options):
         except Exception, e:
             for (lineno, line) in enumerate(f):
                 if ':vars]' in line:
-                    errors.append("line %s: contains a vars definition" % lineno + 1)
-    result = Result()
-    if errors:
-        result.stderr = '\n'.join(errors)
-        result.failed = True
-    return result
+                    errors.append(Error(lineno + 1, "contains a vars definition"))
+    return Result(candidate.path, errors)
 
 
 def parse(candidate, options):
-    result = Result()
+    result = Result(candidate.path)
     try:
         if ANSIBLE > 1:
             loader = ansible.parsing.dataloader.DataLoader()
@@ -36,6 +32,5 @@ def parse(candidate, options):
         else:
             ansible.inventory.Inventory(candidate.path)
     except Exception, e:
-        result.stderr = "Inventory is broken: %s" % e.message
-        result.failed = True
+        result.errors = [Error(None,"Inventory is broken: %s" % e.message)]
     return result

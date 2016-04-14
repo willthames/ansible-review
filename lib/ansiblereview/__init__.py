@@ -1,5 +1,4 @@
 from ansiblelint import default_rulesdir, RulesCollection
-from ansiblelint.formatters import ParseableFormatter
 import utils
 from functools import partial
 import re
@@ -30,11 +29,27 @@ class Standard(object):
                 self.name, self.version, self.types)
 
 
+class Error(object):
+    def __init__(self, lineno, message):
+        self.lineno = lineno
+        self.message = message
+
+    def __repr__(self):
+        if self.lineno:
+            return "%s: %s" % (self.lineno, self.message)
+        else:
+            return self.message
+
+
 class Result(object):
-    def __init__(self):
-        self.failed = False
-        self.stderr = ""
-        self.stdout = ""
+    def __init__(self, candidate, errors=[]):
+        self.candidate = candidate
+        self.errors = errors
+
+    def message(self):
+        return "\n".join(["{0}:{1}".format(self.candidate, error)
+                          for error in self.errors])
+
 
 
 class Candidate(object):
@@ -43,8 +58,8 @@ class Candidate(object):
         self.version = find_version(filename)
         self.type = type(self).__name__
 
-    def review(self, settings):
-        return utils.review(self, settings)
+    def review(self, settings, lines=None):
+        return utils.review(self, settings, lines)
 
     def __repr__(self):
         return "%s (%s)" % (type(self).__name__, self.path)
@@ -135,19 +150,16 @@ def lintcheck(rulename):
 
 
 def ansiblelint(rulename, candidate, settings):
-    result = Result()
+    result = Result(candidate.path)
     rules = RulesCollection()
-    formatter = ParseableFormatter()
     rules.extend(RulesCollection.create_from_directory(default_rulesdir))
     if settings.lintdir:
         rules.extend(RulesCollection.create_from_directory(settings.lintdir))
 
     fileinfo = dict(path=candidate.path, type=type(candidate).__name__.lower())
     matches = rules.run(fileinfo, rulename.split(','))
-    if matches:
-        result.failed = True
-        result.stderr = "\n".join([formatter.format(match) for match in matches])
-
+    result.errors = [Error(match.linenumber, "[%s] %s" % (match.rule.id, match.message))
+                     for match in matches]
     return result
 
 
