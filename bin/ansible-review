@@ -7,13 +7,6 @@ import sys
 from ansiblereview.version import __version__
 from ansiblereview import classify
 from ansiblereview.utils import error, info, read_config
-from fabric.api import env
-from fabric.state import output
-
-env.colorize_errors = True
-output.warnings = False
-output.running = False
-env.warn_only = True
 
 
 def main(args):

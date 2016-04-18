@@ -1,28 +1,34 @@
 from __future__ import print_function
-from fabric.colors import red, green, yellow
-import importlib
-import os
-import sys
-from distutils.version import LooseVersion
+
+try:
+    from ansible.utils.color import stringc
+except ImportError:
+    from ansible.color import stringc
+import ansiblereview
 from appdirs import AppDirs
 import ConfigParser
+from distutils.version import LooseVersion
+import importlib
+import os
+import subprocess
+import sys
 
 
 def abort(message):
-    print(red("FATAL: %s" % message), file=sys.stderr)
+    print(stringc("FATAL: %s" % message, 'red'), file=sys.stderr)
     sys.exit(1)
 
 
 def error(message):
-    print(red("ERROR: %s" % message), file=sys.stderr)
+    print(stringc("ERROR: %s" % message, 'red'), file=sys.stderr)
 
 
 def warn(message):
-    print(yellow("WARN: %s" % message))
+    print(stringc("WARN: %s" % message, 'yellow'))
 
 
 def info(message):
-    print(green("INFO: %s" % message))
+    print(stringc("INFO: %s" % message, 'green'))
 
 
 def standards_latest(standards):
@@ -56,9 +62,16 @@ def review(candidate, settings, lines=None):
 
     if not candidate.version:
         candidate.version = standards_latest(standards.standards)
-        warn("%s %s does not present standards version. "
-             "Using latest standards version %s" %
-             (type(candidate).__name__, candidate.path, candidate.version))
+        if isinstance(candidate, ansiblereview.RoleFile):
+            warn("%s %s is in a role that contains a meta/main.yml without a declared "
+                 "standards version. "
+                 "Using latest standards version %s" %
+                 (type(candidate).__name__, candidate.path, candidate.version))
+        else:
+            warn("%s %s does not present standards version. "
+                 "Using latest standards version %s" %
+                 (type(candidate).__name__, candidate.path, candidate.version))
+
     elif not settings.quiet:
         info("%s %s declares standards version %s" %
              (type(candidate).__name__, candidate.path, candidate.version))
@@ -68,7 +81,7 @@ def review(candidate, settings, lines=None):
             continue
         result = standard.check(candidate, settings)
         for err in [err for err in result.errors
-                      if is_line_in_ranges(err.lineno, lines_ranges(lines))]:
+                    if is_line_in_ranges(err.lineno, lines_ranges(lines))]:
             if not standard.version or \
                     LooseVersion(standard.version) > LooseVersion(candidate.version):
                 warn("Future standard \"%s\" not met:\n%s:%s" %
@@ -101,5 +114,19 @@ def read_config():
     config.read(config_file)
 
     return Settings(dict(rulesdir=config.get('rules', 'standards'),
-                         lintdir = config.get('rules', 'lint')))
+                         lintdir=config.get('rules', 'lint')))
 
+
+class ExecuteResult(object):
+    pass
+
+
+def execute(cmd):
+    result = ExecuteResult()
+    try:
+        result.output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+        result.rc = 0
+    except subprocess.CalledProcessError, e:
+        result.rc = e.returncode
+        result.output = e.output
+    return result

@@ -34,7 +34,7 @@ BAD:
 from __future__ import print_function
 import re
 import sys
-from ansiblereview import Result
+from ansiblereview import Result, Error, utils
 
 
 def indent_checker(filename):
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     args = sys.argv[1:] or [sys.stdin]
     rc = 0
     for arg in args:
-        result = yamlreview(arg, Settings())
+        result = yamlreview(arg, utils.Settings())
         for error in result.errors():
             print("ERROR: %s:%s: %s" % (arg, error.lineno, error.message), file=sys.stderr)
             rc = 1

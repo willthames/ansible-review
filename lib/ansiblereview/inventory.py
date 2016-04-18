@@ -1,5 +1,5 @@
 import ansible.inventory
-from ansiblereview import Result
+from ansiblereview import Result, Error
 import yaml
 
 try:
@@ -15,7 +15,7 @@ def no_vars_in_host_file(candidate, options):
     with open(candidate.path, 'r') as f:
         try:
             yaml.safe_load(f)
-        except Exception, e:
+        except Exception:
             for (lineno, line) in enumerate(f):
                 if ':vars]' in line:
                     errors.append(Error(lineno + 1, "contains a vars definition"))
@@ -32,5 +32,5 @@ def parse(candidate, options):
         else:
             ansible.inventory.Inventory(candidate.path)
     except Exception, e:
-        result.errors = [Error(None,"Inventory is broken: %s" % e.message)]
+        result.errors = [Error(None, "Inventory is broken: %s" % e.message)]
     return result

@@ -26,7 +26,7 @@ class Standard(object):
 
     def __repr__(self):
         return "Standard: %s (version: %s, types: %s)" % (
-                self.name, self.version, self.types)
+               self.name, self.version, self.types)
 
 
 class Error(object):
@@ -51,7 +51,6 @@ class Result(object):
                           for error in self.errors])
 
 
-
 class Candidate(object):
     def __init__(self, filename):
         self.path = filename
@@ -72,8 +71,7 @@ class RoleFile(Candidate):
     def __init__(self, filename):
         self.path = filename
         self.version = None
-        cwd = os.path.dirname(filename)
-        for roleroot in [os.path.dirname(cwd), os.path.dirname(os.path.dirname(cwd))]:
+        for roleroot in os.path.abspath(filename).split(os.sep):
             meta_file = os.path.join(roleroot, "meta", "main.yml")
             if os.path.exists(meta_file):
                 self.version = self.version or find_version(meta_file)
@@ -103,7 +101,7 @@ class Code(Candidate):
     pass
 
 
-class Template(Candidate):
+class Template(RoleFile):
     pass
 
 
@@ -111,7 +109,7 @@ class Doc(Candidate):
     pass
 
 
-class File(Candidate):
+class File(RoleFile):
     pass
 
 
@@ -129,16 +127,16 @@ def classify(filename):
         return Meta(filename)
     if parentdir in ['inventory']:
         return Inventory(filename)
-    if parentdir in ['library', 'lookup_plugins', 'callback_plugins', 
-            'filter_plugins'] or filename.endswith('.py'):
+    if parentdir in ['library', 'lookup_plugins', 'callback_plugins',
+                     'filter_plugins'] or filename.endswith('.py'):
         return Code(filename)
     if filename.endswith('.yml') or filename.endswith('.yaml'):
         if 'rolesfile' in filename:
             return Rolesfile(filename)
         return Playbook(filename)
-    if parentdir in ['templates']:
+    if 'templates' in filename.split(os.sep):
         return Template(filename)
-    if parentdir in ['files']:
+    if 'files' in filename.split(os.sep):
         return File(filename)
     if 'README' in filename:
         return Doc(filename)
