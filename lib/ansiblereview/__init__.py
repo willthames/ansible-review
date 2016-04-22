@@ -69,12 +69,16 @@ class Candidate(object):
 
 class RoleFile(Candidate):
     def __init__(self, filename):
-        self.path = filename
+        super(RoleFile, self).__init__(filename)
         self.version = None
-        for roleroot in os.path.abspath(filename).split(os.sep):
-            meta_file = os.path.join(roleroot, "meta", "main.yml")
+        parentdir = os.path.dirname(os.path.abspath(filename))
+        while parentdir != os.path.dirname(parentdir):
+            meta_file = os.path.join(parentdir, "meta", "main.yml")
             if os.path.exists(meta_file):
-                self.version = self.version or find_version(meta_file)
+                self.version = find_version(meta_file)
+                if self.version:
+                    break
+            parentdir = os.path.dirname(parentdir)
 
 
 class Playbook(Candidate):
@@ -164,11 +168,11 @@ def ansiblelint(rulename, candidate, settings):
     return result
 
 
-def find_version(filename, version_regex="^# Standards: \([0-9]+(\.[0-9])+\)"):
+def find_version(filename, version_regex="^# Standards: ([0-9]+\.[0-9]+)"):
     version_re = re.compile(version_regex)
     with open(filename, 'r') as f:
         for line in f:
             match = version_re.match(line)
             if match:
-                return match.group(0)
+                return match.group(1)
     return None
