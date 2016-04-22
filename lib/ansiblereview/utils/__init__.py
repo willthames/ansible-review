@@ -90,7 +90,7 @@ def review(candidate, settings, lines=None):
                 error("Standard \"%s\" not met:\n%s:%s" %
                       (standard.name, candidate.path, err))
                 errors = errors + 1
-        else:
+        if not result.errors:
             if not settings.quiet:
                 if not standard.version:
                     info("Proposed standard \"%s\" met" % standard.name)
