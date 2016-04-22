@@ -55,7 +55,7 @@ class Candidate(object):
     def __init__(self, filename):
         self.path = filename
         self.version = find_version(filename)
-        self.type = type(self).__name__
+        self.filetype = type(self).__name__.lower()
 
     def review(self, settings, lines=None):
         return utils.review(self, settings, lines)
@@ -82,7 +82,10 @@ class Playbook(Candidate):
 
 
 class Task(RoleFile):
-    pass
+    def __init__(self, filename):
+        super(Task, self).__init__(filename)
+        self.filetype = 'tasks'
+
 
 
 class Vars(RoleFile):
@@ -154,7 +157,7 @@ def ansiblelint(rulename, candidate, settings):
     if settings.lintdir:
         rules.extend(RulesCollection.create_from_directory(settings.lintdir))
 
-    fileinfo = dict(path=candidate.path, type=type(candidate).__name__.lower())
+    fileinfo = dict(path=candidate.path, type=candidate.filetype)
     matches = rules.run(fileinfo, rulename.split(','))
     result.errors = [Error(match.linenumber, "[%s] %s" % (match.rule.id, match.message))
                      for match in matches]
