@@ -14,21 +14,21 @@ import subprocess
 import sys
 
 
-def abort(message):
-    print(stringc("FATAL: %s" % message, 'red'), file=sys.stderr)
+def abort(message, file=sys.stderr):
+    print(stringc("FATAL: %s" % message, 'red'), file=file)
     sys.exit(1)
 
 
-def error(message):
-    print(stringc("ERROR: %s" % message, 'red'), file=sys.stderr)
+def error(message, file=sys.stderr):
+    print(stringc("ERROR: %s" % message, 'red'), file=file)
 
 
-def warn(message):
-    print(stringc("WARN: %s" % message, 'yellow'))
+def warn(message, file=sys.stdout):
+    print(stringc("WARN: %s" % message, 'yellow'), file=file)
 
 
-def info(message):
-    print(stringc("INFO: %s" % message, 'green'))
+def info(message, file=sys.stdout):
+    print(stringc("INFO: %s" % message, 'green'), file=file)
 
 
 def standards_latest(standards):
@@ -54,10 +54,10 @@ def review(candidate, settings, lines=None):
 
     if not settings.rulesdir:
         abort("Standards directory is not set on command line or in configuration file - aborting")
-    sys.path.append(os.path.expanduser(settings.rulesdir))
+    sys.path.append(os.path.abspath(os.path.expanduser(settings.rulesdir)))
     try:
         standards = importlib.import_module('standards')
-    except ImportError:
+    except ImportError as e:
         abort("Could not find standards in directory %s" % settings.rulesdir)
 
     if not candidate.version:
@@ -104,6 +104,7 @@ class Settings(object):
     def __init__(self, values):
         self.rulesdir = values.get('rulesdir')
         self.lintdir = values.get('lintdir')
+        self.configfile = values.get('configfile')
         self.quiet = values.get('quiet', False)
 
 
@@ -113,8 +114,12 @@ def read_config():
     config = ConfigParser.RawConfigParser({'standards': None, 'lint': None})
     config.read(config_file)
 
-    return Settings(dict(rulesdir=config.get('rules', 'standards'),
-                         lintdir=config.get('rules', 'lint')))
+    if config.has_section('rules'):
+        return Settings(dict(rulesdir=config.get('rules', 'standards'),
+                             lintdir=config.get('rules', 'lint'),
+                             configfile=config_file))
+    else:
+        return Settings(dict(rulesdir=None, lintdir=None, configfile=config_file))
 
 
 class ExecuteResult(object):
