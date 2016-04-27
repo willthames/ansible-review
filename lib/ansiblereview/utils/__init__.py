@@ -57,7 +57,7 @@ def review(candidate, settings, lines=None):
     sys.path.append(os.path.abspath(os.path.expanduser(settings.rulesdir)))
     try:
         standards = importlib.import_module('standards')
-    except ImportError as e:
+    except ImportError:
         abort("Could not find standards in directory %s" % settings.rulesdir)
 
     if not candidate.version:

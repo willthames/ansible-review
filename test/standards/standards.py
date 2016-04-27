@@ -8,21 +8,6 @@ def check_fail(candidate, settings):
 def check_success(candidate, settings):
     return Result(candidate)
 
-
-test_play_ansiblelint_success = Standard(dict(
-    check = lintcheck('TEST0004'),
-    name = "Test play lint success",
-    version = "0.1",
-    types = "playbook"
-))
-
-test_play_ansiblelint_failure = Standard(dict(
-    check = lintcheck('TEST0003'),
-    name = "Test play lint failure",
-    version = "0.3",
-    types = "playbook"
-))
-
 test_task_ansiblelint_success = Standard(dict(
     check = lintcheck('TEST0002'),
     name = "Test task lint success",
@@ -53,8 +38,6 @@ test_success = Standard(dict(
 
 
 standards = [
-        test_play_ansiblelint_success,
-        test_play_ansiblelint_failure,
         test_task_ansiblelint_success,
         test_task_ansiblelint_failure,
         test_success,

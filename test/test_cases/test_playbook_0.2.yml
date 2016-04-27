@@ -1,0 +1,8 @@
+# Standards: 0.2
+---
+- hosts: localhost
+  connection: local
+
+  tasks:
+  - name: say hello
+    debug: msg=hello

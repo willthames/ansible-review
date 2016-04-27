@@ -91,7 +91,6 @@ class Task(RoleFile):
         self.filetype = 'tasks'
 
 
-
 class Vars(RoleFile):
     pass
 
