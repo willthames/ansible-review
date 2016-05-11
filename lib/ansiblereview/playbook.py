@@ -14,7 +14,7 @@ def install_roles(playbook):
         rolesfile = os.path.join(os.path.dirname(playbook), "rolesfile")
     if os.path.exists(rolesfile):
         utils.info("Installing roles: Using rolesfile %s and roles dir %s" % (rolesfile, rolesdir))
-        result = utils.execute("ansible-galaxy install -r %s -p %s -f" % (rolesfile, rolesdir))
+        result = utils.execute(["ansible-galaxy", "install", "-r", rolesfile, "-p", rolesdir])
         if result.rc:
             utils.error("Could not install roles from %s:\n%s" %
                         (rolesdir, result.output))
@@ -26,7 +26,7 @@ def install_roles(playbook):
 
 
 def syntax_check(playbook):
-    result = utils.execute("ansible-playbook --syntax-check %s" % playbook)
+    result = utils.execute(["ansible-playbook", "--syntax-check", playbook])
     if result.rc:
         message = "FATAL: Playbook syntax check failed for %s:\n%s" % \
             (playbook, result.output)
