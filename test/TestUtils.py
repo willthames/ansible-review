@@ -21,8 +21,8 @@
 import os
 import unittest
 
-from ansiblereview import Playbook, Task
-import ansiblereview.utils as utils
+from ansiblereview import Playbook, Task, Code
+import ansiblereview.code as code
 
 
 class TestUtils(unittest.TestCase):
@@ -36,3 +36,9 @@ class TestUtils(unittest.TestCase):
     def test_find_version_rolefile(self):
         candidate = Task(os.path.join(self.cwd, 'test_cases', 'test_role_v0.2', 'tasks', 'main.yml'))
         self.assertEqual(candidate.version, '0.2')
+
+    def test_code_passes_flake8(self):
+        # run flake8 against this source file
+        candidate = Code(__file__.replace('.pyc', '.py'))
+        result = code.code_passes_flake8(candidate, None)
+        self.assertEqual(len(result.errors), 0)
