@@ -56,6 +56,7 @@ class Candidate(object):
         self.path = filename
         self.version = find_version(filename)
         self.filetype = type(self).__name__.lower()
+        self.version_expected = True
 
     def review(self, settings, lines=None):
         return utils.review(self, settings, lines)
@@ -91,7 +92,21 @@ class Task(RoleFile):
         self.filetype = 'tasks'
 
 
-class Vars(RoleFile):
+class Vars(Candidate):
+    pass
+
+
+class Unversioned(Candidate):
+    def __init__(self, filename):
+        super(Unversioned, self).__init__(filename)
+        self.expected_version = False
+
+
+class InventoryVars(Unversioned):
+    pass
+
+
+class RoleVars(RoleFile):
     pass
 
 
@@ -99,11 +114,11 @@ class Meta(RoleFile):
     pass
 
 
-class Inventory(Candidate):
+class Inventory(Unversioned):
     pass
 
 
-class Code(Candidate):
+class Code(Unversioned):
     pass
 
 
@@ -111,7 +126,7 @@ class Template(RoleFile):
     pass
 
 
-class Doc(Candidate):
+class Doc(Unversioned):
     pass
 
 
@@ -119,7 +134,7 @@ class File(RoleFile):
     pass
 
 
-class Rolesfile(Candidate):
+class Rolesfile(Unversioned):
     pass
 
 
@@ -127,8 +142,10 @@ def classify(filename):
     parentdir = os.path.basename(os.path.dirname(filename))
     if parentdir in ['tasks', 'handlers']:
         return Task(filename)
-    if parentdir in ['vars', 'defaults', 'group_vars', 'host_vars']:
-        return Vars(filename)
+    if parentdir in ['vars', 'defaults']:
+        return RoleVars(filename)
+    if parentdir in ['group_vars', 'host_vars']:
+        return InventoryVars(filename)
     if parentdir == 'meta':
         return Meta(filename)
     if parentdir in ['inventory']:
