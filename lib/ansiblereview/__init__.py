@@ -56,7 +56,7 @@ class Candidate(object):
         self.path = filename
         self.version = find_version(filename)
         self.filetype = type(self).__name__.lower()
-        self.version_expected = True
+        self.expected_version = True
 
     def review(self, settings, lines=None):
         return utils.review(self, settings, lines)
