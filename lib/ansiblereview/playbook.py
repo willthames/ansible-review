@@ -42,7 +42,7 @@ def review(playbook, settings):
 
 
 def repeated_names(playbook, settings):
-    yaml = ansiblelint.utils.parse_yaml_linenumbers(playbook.path)
+    yaml = ansiblelint.utils.parse_yaml_linenumbers(open(playbook['path']).read(), playbook['path'])
     namelines = defaultdict(list)
     errors = []
     if yaml:
