@@ -1,4 +1,5 @@
 from ansiblelint import default_rulesdir, RulesCollection
+from ansible.plugins import module_loader
 import utils
 from functools import partial
 import re
@@ -80,6 +81,9 @@ class RoleFile(Candidate):
                 if self.version:
                     break
             parentdir = os.path.dirname(parentdir)
+        role_modules = os.path.join(parentdir, 'library')
+        if os.path.exists(role_modules):
+            module_loader.add_directory(role_modules)
 
 
 class Playbook(Candidate):
