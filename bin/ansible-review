@@ -43,7 +43,7 @@ def main(args):
         if candidate:
             errors = errors + candidate.review(options, lines)
         else:
-            error("Couldn't classify file %s" % arg)
+            warn("Couldn't classify file %s" % arg)
     return errors
 
 
