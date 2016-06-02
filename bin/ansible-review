@@ -9,15 +9,32 @@ from ansiblereview import classify
 from ansiblereview.utils import error, info, warn, read_config
 
 
-def main(args):
+def get_candidates_from_diff(difftext):
+    try:
+        import unidiff
+    except ImportError as e:
+        raise SystemExit("Could not import unidiff library: %s", e.message)
+    patch = unidiff.PatchSet(sys.stdin)
 
+    candidates = []
+    for patchedfile in [patchfile for patchfile in
+                        patch.added_files + patch.modified_files]:
+        if patchedfile.source_file == '/dev/null':
+            candidates.append(patchedfile.path)
+        else:
+            lines = ",".join(["%s-%s" % (hunk.target_start, hunk.target_start + hunk.target_length)
+                              for hunk in patchedfile])
+            candidates.append("%s:%s" % (patchedfile.path, lines))
+    return candidates
+
+
+def main(args):
+    settings = read_config()
     parser = optparse.OptionParser("%prog playbook_file|role_file|inventory_file",
                                    version="%prog " + __version__)
-
-    settings = read_config()
     parser.add_option('-d', dest='rulesdir',
                       help="Location of standards rules: [%s]" % settings.rulesdir,
-                      default = settings.rulesdir)
+                      default=settings.rulesdir)
     parser.add_option('-r', dest='lintdir',
                       help="Location of additional lint rules: [%s]" % settings.lintdir,
                       default=settings.lintdir)
@@ -25,25 +42,34 @@ def main(args):
                       help="Only output errors")
     options, args = parser.parse_args(args)
 
-    if len(args) == 0:
-        parser.print_help(file=sys.stderr)
-        if os.path.exists(settings.configfile):
+    if os.path.exists(settings.configfile):
+        if not options.quiet:
             info("Using configuration file: %s" % settings.configfile, file=sys.stderr)
-        else:
-            warn("No configuration file found at %s" % settings.configfile, file=sys.stderr)
-        return 1
+    else:
+        warn("No configuration file found at %s" % settings.configfile, file=sys.stderr)
+
+    if len(args) == 0:
+        candidates = get_candidates_from_diff(sys.stdin)
+    else:
+        candidates = args
 
     errors = 0
-    for arg in args:
-        if ':' in arg:
-            (arg, lines) = arg.split(":")
+    for filename in candidates:
+        if ':' in filename:
+            (filename, lines) = filename.split(":")
         else:
             lines = None
-        candidate = classify(arg)
+        candidate = classify(filename)
         if candidate:
+            if lines:
+                if not options.quiet:
+                    info("Reviewing %s lines %s" % (candidate, lines))
+            else:
+                if not options.quiet:
+                    info("Reviewing all of %s" % candidate)
             errors = errors + candidate.review(options, lines)
         else:
-            warn("Couldn't classify file %s" % arg)
+            warn("Couldn't classify file %s" % filename)
     return errors
 
 

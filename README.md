@@ -24,8 +24,6 @@ ansible-review reviewtarget [target2...]
 ansible-review will review inventory files, role
 files, python code (modules, plugins) and playbooks.
 
-*TODO*
-
 * The goal is that each file that changes in a
   changeset should be reviewable simply by passing
   those files as the arguments to ansible-review.
@@ -40,6 +38,15 @@ files, python code (modules, plugins) and playbooks.
   - roles with sub-roles
   - per-playbook repository
 * It should work with rolesfiles and with local roles.
+
+## Typical approaches
+
+* `git ls-files | xargs ansible-review` works well in
+  a roles repo to review the whole role. But it will
+  review the whole of other repos too.
+* `git diff branch_to_compare | ansible-review` will
+  review only the changes between the branches and
+  surrounding context.
 
 
 # Reviews

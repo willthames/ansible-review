@@ -1,9 +1,13 @@
 from ansiblelint import default_rulesdir, RulesCollection
-from ansible.plugins import module_loader
 import utils
 from functools import partial
 import re
 import os
+
+try:
+    from ansible.plugins import module_loader
+except ImportError:
+    from ansible.utils import module_finder as module_loader
 
 
 class AnsibleReviewFormatter(object):
