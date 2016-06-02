@@ -161,9 +161,9 @@ def classify(filename):
     if parentdir in ['library', 'lookup_plugins', 'callback_plugins',
                      'filter_plugins'] or filename.endswith('.py'):
         return Code(filename)
+    if 'rolesfile' in filename or 'requirements' in filename:
+        return Rolesfile(filename)
     if filename.endswith('.yml') or filename.endswith('.yaml'):
-        if 'rolesfile' in filename:
-            return Rolesfile(filename)
         return Playbook(filename)
     if 'templates' in filename.split(os.sep):
         return Template(filename)
