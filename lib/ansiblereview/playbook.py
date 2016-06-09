@@ -48,7 +48,7 @@ def repeated_names(playbook, settings):
     if yaml:
         for task in ansiblelint.utils.get_action_tasks(yaml, playbook):
             if 'name' in task:
-                namelines['name'].append(task['__line__'])
+                namelines[task['name']].append(task['__line__'])
         for (name, lines) in namelines.items():
             if len(lines) > 1:
                 errors.append(Error(lines[-1], "Task/handler name %s appears multiple times" % name))
