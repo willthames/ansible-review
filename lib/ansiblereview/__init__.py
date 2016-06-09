@@ -100,6 +100,12 @@ class Task(RoleFile):
         self.filetype = 'tasks'
 
 
+class Handler(RoleFile):
+    def __init__(self, filename):
+        super(Handler, self).__init__(filename)
+        self.filetype = 'handlers'
+
+
 class Vars(Candidate):
     pass
 
@@ -148,8 +154,10 @@ class Rolesfile(Unversioned):
 
 def classify(filename):
     parentdir = os.path.basename(os.path.dirname(filename))
-    if parentdir in ['tasks', 'handlers']:
+    if parentdir in ['tasks']:
         return Task(filename)
+    if parentdir in ['handlers']:
+        return Handler(filename)
     if parentdir in ['vars', 'defaults']:
         return RoleVars(filename)
     if parentdir in ['group_vars', 'host_vars']:
