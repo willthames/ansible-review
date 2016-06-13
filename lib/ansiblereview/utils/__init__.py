@@ -49,9 +49,7 @@ def is_line_in_ranges(line, ranges):
     return not ranges or any([line in r for r in ranges])
 
 
-def review(candidate, settings, lines=None):
-    errors = 0
-
+def read_standards(settings):
     if not settings.rulesdir:
         abort("Standards directory is not set on command line or in configuration file - aborting")
     sys.path.append(os.path.abspath(os.path.expanduser(settings.rulesdir)))
@@ -59,6 +57,13 @@ def review(candidate, settings, lines=None):
         standards = importlib.import_module('standards')
     except ImportError:
         abort("Could not find standards in directory %s" % settings.rulesdir)
+    return standards
+
+
+def review(candidate, settings, lines=None):
+    errors = 0
+
+    standards = read_standards(settings)
 
     if not candidate.version:
         candidate.version = standards_latest(standards.standards)
