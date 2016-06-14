@@ -47,9 +47,9 @@ class Error(object):
 
 
 class Result(object):
-    def __init__(self, candidate, errors=[]):
+    def __init__(self, candidate, errors=None):
         self.candidate = candidate
-        self.errors = errors
+        self.errors = errors or []
 
     def message(self):
         return "\n".join(["{0}:{1}".format(self.candidate, error)
