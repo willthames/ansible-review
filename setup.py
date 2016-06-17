@@ -21,6 +21,8 @@ setup(
     zip_safe=False,
     install_requires=['ansible-lint>=3.0.0rc11', 'pyyaml', 'appdirs', 'unidiff'],
     scripts=['bin/ansible-review'],
-    license='MIT',
+    classifiers=[
+        'License :: OSI Approved :: MIT License',
+    ],
     test_suite="test"
 )
