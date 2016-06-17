@@ -5,6 +5,7 @@ try:
 except ImportError:
     from ansible.color import stringc
 import ansiblereview
+from ansiblereview.version import __version__
 from appdirs import AppDirs
 import ConfigParser
 from distutils.version import LooseVersion
@@ -64,6 +65,11 @@ def review(candidate, settings, lines=None):
     errors = 0
 
     standards = read_standards(settings)
+    if getattr(standards, 'ansible_review_min_version', None) and \
+            LooseVersion(standards.ansible_review_min_version) > LooseVersion(__version__):
+        raise SystemExit("Standards require ansible-review version %s (current version %s). "
+                         "Please upgrade ansible-review." %
+                         (standards.ansible_review_min_version, __version__))
 
     if not candidate.version:
         candidate.version = standards_latest(standards.standards)
