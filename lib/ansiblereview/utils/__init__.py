@@ -87,7 +87,8 @@ def review(candidate, settings, lines=None):
             continue
         result = standard.check(candidate, settings)
         for err in [err for err in result.errors
-                    if is_line_in_ranges(err.lineno, lines_ranges(lines))]:
+                    if err.lineno == 0 or
+                    is_line_in_ranges(err.lineno, lines_ranges(lines))]:
             if not standard.version or \
                     LooseVersion(standard.version) > LooseVersion(candidate.version):
                 warn("Future standard \"%s\" not met:\n%s:%s" %
