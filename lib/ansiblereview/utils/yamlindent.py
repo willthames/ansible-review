@@ -32,13 +32,14 @@ BAD:
 
 
 from __future__ import print_function
+import codecs
 import re
 import sys
 from ansiblereview import Result, Error, utils
 
 
 def indent_checker(filename):
-    with open(filename, 'r') as f:
+    with codecs.open(filename, mode='rb', encoding='utf-8') as f:
         indent_regex = re.compile("^(?P<whitespace>\s*)(?P<rest>.*)$")
         lineno = 0
         prev_indent = 0

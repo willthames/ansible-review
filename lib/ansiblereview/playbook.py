@@ -1,8 +1,7 @@
-from collections import defaultdict
-
 from ansiblereview import utils, Playbook, Result, Error
 import ansiblelint
-
+import codecs
+from collections import defaultdict
 import os
 
 
@@ -42,7 +41,8 @@ def review(playbook, settings):
 
 
 def repeated_names(playbook, settings):
-    yaml = ansiblelint.utils.parse_yaml_linenumbers(open(playbook['path']).read())
+    with codecs.open(playbook['path'], mode='rb', encoding='utf-8') as f:
+        yaml = ansiblelint.utils.parse_yaml_linenumbers(f, playbook['path'])
     namelines = defaultdict(list)
     errors = []
     if yaml:

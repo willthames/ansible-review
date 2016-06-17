@@ -1,5 +1,6 @@
 import ansible.inventory
 from ansiblereview import Result, Error
+import codecs
 import yaml
 
 try:
@@ -12,7 +13,7 @@ except ImportError:
 
 def no_vars_in_host_file(candidate, options):
     errors = []
-    with open(candidate.path, 'r') as f:
+    with codecs.open(candidate.path, mode='rb', encoding='utf-8') as f:
         try:
             yaml.safe_load(f)
         except Exception:

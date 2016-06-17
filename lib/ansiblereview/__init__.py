@@ -1,8 +1,9 @@
 from ansiblelint import default_rulesdir, RulesCollection
-import utils
+import codecs
 from functools import partial
 import re
 import os
+import utils
 
 try:
     from ansible.plugins import module_loader
@@ -202,7 +203,7 @@ def ansiblelint(rulename, candidate, settings):
 
 def find_version(filename, version_regex="^# Standards: ([0-9]+\.[0-9]+)"):
     version_re = re.compile(version_regex)
-    with open(filename, 'r') as f:
+    with codecs.open(filename, mode='rb', encoding='utf-8') as f:
         for line in f:
             match = version_re.match(line)
             if match:
