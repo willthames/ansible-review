@@ -51,5 +51,6 @@ def repeated_names(playbook, settings):
                 namelines[task['name']].append(task['__line__'])
         for (name, lines) in namelines.items():
             if len(lines) > 1:
-                errors.append(Error(lines[-1], "Task/handler name %s appears multiple times" % name))
+                errors.append(Error(lines[-1],
+                                    "Task/handler name %s appears multiple times" % name))
     return Result(playbook, errors)

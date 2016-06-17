@@ -29,7 +29,8 @@ def parse(candidate, options):
         if ANSIBLE > 1:
             loader = ansible.parsing.dataloader.DataLoader()
             var_manager = ansible.vars.VariableManager()
-            ansible.inventory.Inventory(loader=loader, variable_manager=var_manager, host_list=candidate.path)
+            ansible.inventory.Inventory(loader=loader, variable_manager=var_manager,
+                                        host_list=candidate.path)
         else:
             ansible.inventory.Inventory(candidate.path)
     except Exception, e:

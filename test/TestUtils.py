@@ -34,7 +34,8 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(candidate.version, '0.2')
 
     def test_find_version_rolefile(self):
-        candidate = Task(os.path.join(self.cwd, 'test_cases', 'test_role_v0.2', 'tasks', 'main.yml'))
+        candidate = Task(os.path.join(self.cwd, 'test_cases', 'test_role_v0.2',
+                                      'tasks', 'main.yml'))
         self.assertEqual(candidate.version, '0.2')
 
     def test_code_passes_flake8(self):
