@@ -121,6 +121,14 @@ class InventoryVars(Unversioned):
     pass
 
 
+class HostVars(InventoryVars):
+    pass
+
+
+class GroupVars(InventoryVars):
+    pass
+
+
 class RoleVars(RoleFile):
     pass
 
@@ -161,8 +169,10 @@ def classify(filename):
         return Handler(filename)
     if parentdir in ['vars', 'defaults']:
         return RoleVars(filename)
-    if parentdir in ['group_vars', 'host_vars']:
-        return InventoryVars(filename)
+    if parentdir in ['group_vars']:
+        return GroupVars(filename)
+    if parentdir in ['host_vars']:
+        return HostVars(filename)
     if parentdir == 'meta':
         return Meta(filename)
     if parentdir in ['inventory']:
