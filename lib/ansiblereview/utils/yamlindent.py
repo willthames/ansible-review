@@ -40,27 +40,24 @@ from ansiblereview import Result, Error, utils
 
 def indent_checker(filename):
     with codecs.open(filename, mode='rb', encoding='utf-8') as f:
-        indent_regex = re.compile("^(?P<whitespace>\s*)(?P<rest>.*)$")
+        indent_regex = re.compile("^(?P<indent>\s*(?:- )?)(?P<rest>.*)$")
         lineno = 0
-        prev_indent = 0
-        prev_rest = ''
+        prev_indent = ''
         errors = []
         for line in f:
             lineno += 1
             match = indent_regex.match(line)
             if len(match.group('rest')) == 0:
                 continue
-            match = indent_regex.match(line)
-            curr_indent = len(match.group('whitespace'))
-            if curr_indent - prev_indent > 0:
-                if match.group('rest').startswith('- ') and \
-                        not prev_rest.startswith('- '):
+            curr_indent = match.group('indent')
+            offset = len(curr_indent) - len(prev_indent)
+            if offset > 0 and offset != 2:
+                if match.group('indent').endswith('- '):
                     errors.append(Error(lineno, "lines starting with '- ' should have same "
                                   "or less indentation than previous line"))
-                elif curr_indent - prev_indent != 2:
+                else:
                     errors.append(Error(lineno, "indentation should increase by 2 chars"))
             prev_indent = curr_indent
-            prev_rest = match.group('rest')
         return errors
 
 

@@ -9,3 +9,5 @@
 - name: another task
   debug:
     msg: another msg
+- fail:
+    msg: this is actually valid indentation
