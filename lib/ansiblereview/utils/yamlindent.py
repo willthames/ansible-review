@@ -43,6 +43,7 @@ def indent_checker(filename):
         indent_regex = re.compile("^(?P<whitespace>\s*)(?P<rest>.*)$")
         lineno = 0
         prev_indent = 0
+        prev_rest = ''
         errors = []
         for line in f:
             lineno += 1
@@ -52,12 +53,14 @@ def indent_checker(filename):
             match = indent_regex.match(line)
             curr_indent = len(match.group('whitespace'))
             if curr_indent - prev_indent > 0:
-                if match.group('rest').startswith('- '):
+                if match.group('rest').startswith('- ') and \
+                        not prev_rest.startswith('- '):
                     errors.append(Error(lineno, "lines starting with '- ' should have same "
                                   "or less indentation than previous line"))
                 elif curr_indent - prev_indent != 2:
-                    errors.append(Error(lineno, "indentation should only increase by 2 chars"))
+                    errors.append(Error(lineno, "indentation should increase by 2 chars"))
             prev_indent = curr_indent
+            prev_rest = match.group('rest')
         return errors
 
 
