@@ -1,3 +1,3 @@
 include README.md
 include LICENSE
-recursive-include test *.py *.yml
+recursive-include test *.py *.yml hosts
