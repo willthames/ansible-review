@@ -103,6 +103,9 @@ using, otherwise ansible-review assumes you're using the latest.
 To add standards that are advisory, don't set the version. These will cause
 a message to be displayed but won't constitute a failure.
 
+An example standards file is available in
+[examples/standards.py](examples/standards.py)
+
 ## Standards checks
 
 A typical standards check will look like:
