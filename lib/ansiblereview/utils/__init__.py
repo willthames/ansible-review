@@ -93,7 +93,7 @@ def review(candidate, settings, lines=None):
             continue
         result = standard.check(candidate, settings)
         for err in [err for err in result.errors
-                    if err.lineno == 0 or
+                    if not err.lineno or
                     is_line_in_ranges(err.lineno, lines_ranges(lines))]:
             if not standard.version or \
                     LooseVersion(standard.version) > LooseVersion(candidate.version):

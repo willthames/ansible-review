@@ -46,7 +46,7 @@ def files_should_have_actual_content(candidate, settings):
     with codecs.open(candidate.path, mode='rb', encoding='utf-8') as f:
         content = yaml.load(f.read())
     if not content:
-        errors = [Error(0, "%s appears to have no useful content" % candidate)]
+        errors = [Error(None, "%s appears to have no useful content" % candidate)]
     return Result(candidate.path, errors)
 
 
@@ -135,7 +135,7 @@ def rolesfile_contains_scm_in_src(candidate, settings):
 
 
 def host_vars_exist(candidate, settings):
-    return Result(candidate.path, [Error(0, "Host vars are generally not required")])
+    return Result(candidate.path, [Error(None, "Host vars are generally not required")])
 
 
 rolesfile_should_be_in_yaml = Standard(dict(
