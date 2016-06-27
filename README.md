@@ -124,6 +124,13 @@ def check_playbook_for_something(candidate, settings):
 All standards check take a candidate object, which has a path attribute.
 The type can be inferred from the class name (i.e. `type(candidate).__name__`)
 
+They return a `Result` object, which contains a possibly empty list of `Error`
+objects. `Error` objects are formed of a line number and a message. If the
+error applies to the whole file being reviewed, set the line number to `None`.
+Line numbers are important as `ansible-review` can review just ranges of files
+to only review changes (e.g. through piping the output of `git diff` to
+`ansible-review`)
+
 The ansiblelint check is ready out of the box, and just takes a list of
 IDs or tags to check. You can point to your own ansible-lint rules
 using the configuration file or `-d /path/to/ansible/lint/rules`
