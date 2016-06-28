@@ -33,7 +33,7 @@ def info(message, file=sys.stdout):
 
 
 def standards_latest(standards):
-    return max([standard.version for standard in standards if standard.version], key=LooseVersion)
+    return max([standard.version for standard in standards if standard.version] or ["0.1"], key=LooseVersion)
 
 
 def lines_ranges(lines_spec):
