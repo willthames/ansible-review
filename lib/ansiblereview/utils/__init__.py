@@ -6,7 +6,6 @@ except ImportError:
     from ansible.color import stringc
 import ansiblereview
 from ansiblereview.version import __version__
-from appdirs import AppDirs
 import ConfigParser
 from distutils.version import LooseVersion
 import importlib
@@ -121,9 +120,7 @@ class Settings(object):
         self.quiet = values.get('quiet', False)
 
 
-def read_config():
-    config_dir = AppDirs("ansible-review", "com.github.willthames").user_config_dir
-    config_file = os.path.join(config_dir, "config.ini")
+def read_config(config_file):
     config = ConfigParser.RawConfigParser({'standards': None, 'lint': None})
     config.read(config_file)
 
