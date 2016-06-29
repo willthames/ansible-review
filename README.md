@@ -66,6 +66,8 @@ your operating system)
 
 The location can be found by using `ansible-review` with no arguments.
 
+You can override the configuration file location with the `-c` flag.
+
 ```
 [rules]
 lint = /path/to/your/ansible/lint/rules
@@ -134,5 +136,3 @@ to only review changes (e.g. through piping the output of `git diff` to
 The ansiblelint check is ready out of the box, and just takes a list of
 IDs or tags to check. You can point to your own ansible-lint rules
 using the configuration file or `-d /path/to/ansible/lint/rules`
-
-
