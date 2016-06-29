@@ -7,6 +7,7 @@ import sys
 from ansiblereview.version import __version__
 from ansiblereview import classify
 from ansiblereview.utils import error, info, warn, read_config
+from appdirs import AppDirs
 
 
 def get_candidates_from_diff(difftext):
@@ -29,24 +30,33 @@ def get_candidates_from_diff(difftext):
 
 
 def main(args):
-    settings = read_config()
+    config_dir = AppDirs("ansible-review", "com.github.willthames").user_config_dir
+    default_config_file = os.path.join(config_dir, "config.ini")
+
     parser = optparse.OptionParser("%prog playbook_file|role_file|inventory_file",
                                    version="%prog " + __version__)
+    parser.add_option('-c', dest='configfile', default=default_config_file,
+                      help="Location of configuration file: [%s]" % default_config_file)
     parser.add_option('-d', dest='rulesdir',
-                      help="Location of standards rules: [%s]" % settings.rulesdir,
-                      default=settings.rulesdir)
+                      help="Location of standards rules")
     parser.add_option('-r', dest='lintdir',
-                      help="Location of additional lint rules: [%s]" % settings.lintdir,
-                      default=settings.lintdir)
+                      help="Location of additional lint rules")
     parser.add_option('-q', dest='quiet', action="store_true", default=False,
                       help="Only output errors")
-    options, args = parser.parse_args(args)
 
-    if os.path.exists(settings.configfile):
+    options, args = parser.parse_args(args)
+    settings = read_config(options.configfile)
+
+    # Merge CLI options with config options. CLI options override config options.
+    for key, value in settings.__dict__.iteritems():
+        if not getattr(options, key):
+            setattr(options, key, getattr(settings, key))
+
+    if os.path.exists(options.configfile):
         if not options.quiet:
-            info("Using configuration file: %s" % settings.configfile, file=sys.stderr)
+            info("Using configuration file: %s" % options.configfile, file=sys.stderr)
     else:
-        warn("No configuration file found at %s" % settings.configfile, file=sys.stderr)
+        warn("No configuration file found at %s" % options.configfile, file=sys.stderr)
 
     if len(args) == 0:
         candidates = get_candidates_from_diff(sys.stdin)
