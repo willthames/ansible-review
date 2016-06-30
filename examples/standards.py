@@ -260,7 +260,14 @@ host_vars_should_not_be_present = Standard(dict(
     types=["hostvars"]
 ))
 
-ansible_review_min_version = '0.7.0'
+with_items_bare_words = Standard(dict(
+    name="bare words are deprecated for with_items",
+    check=lintcheck('ANSIBLE0015'),
+    types=["task", "handler", "playbook"]
+))
+
+ansible_review_min_version = '0.8.0'
+ansible_lint_min_version = '3.1.1'
 
 standards = [
     rolesfile_should_be_in_yaml,
@@ -283,5 +290,6 @@ standards = [
     files_should_not_be_purposeless,
     playbooks_should_not_contain_logic,
     host_vars_should_not_be_present,
+    with_items_bare_words,
 ]
 
