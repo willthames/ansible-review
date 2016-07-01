@@ -5,38 +5,38 @@ from collections import defaultdict
 import os
 
 
-def install_roles(playbook):
-
+def install_roles(playbook, settings):
     rolesdir = os.path.join(os.path.dirname(playbook), "roles")
     rolesfile = os.path.join(os.path.dirname(playbook), "rolesfile.yml")
     if not os.path.exists(rolesfile):
         rolesfile = os.path.join(os.path.dirname(playbook), "rolesfile")
     if os.path.exists(rolesfile):
-        utils.info("Installing roles: Using rolesfile %s and roles dir %s" % (rolesfile, rolesdir))
+        utils.info("Installing roles: Using rolesfile %s and roles dir %s" % (rolesfile, rolesdir),
+                   settings)
         result = utils.execute(["ansible-galaxy", "install", "-r", rolesfile, "-p", rolesdir])
         if result.rc:
             utils.error("Could not install roles from %s:\n%s" %
                         (rolesdir, result.output))
         else:
-            utils.info(u"Roles installed \u2713")
+            utils.info(u"Roles installed \u2713", settings)
     else:
         utils.warn("No roles file found for playbook %s, tried %s and %s.yml" %
-                   (playbook, rolesfile, rolesfile))
+                   (playbook, rolesfile, rolesfile), settings)
 
 
-def syntax_check(playbook):
+def syntax_check(playbook, settings):
     result = utils.execute(["ansible-playbook", "--syntax-check", playbook])
     if result.rc:
         message = "FATAL: Playbook syntax check failed for %s:\n%s" % \
             (playbook, result.output)
         utils.abort(message)
     else:
-        utils.info("Playbook syntax check succeeded for %s" % playbook)
+        utils.info("Playbook syntax check succeeded for %s" % playbook, settings)
 
 
 def review(playbook, settings):
-    install_roles(playbook)
-    syntax_check(playbook)
+    install_roles(playbook, settings)
+    syntax_check(playbook, settings)
     return utils.review(Playbook(playbook), settings)
 
 

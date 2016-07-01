@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+import logging
 import optparse
 import os
 import sys
@@ -43,6 +44,8 @@ def main(args):
                       help="Location of additional lint rules")
     parser.add_option('-q', dest='quiet', action="store_true", default=False,
                       help="Only output errors")
+    parser.add_option('-v', dest='verbose', action="store_true", default=False,
+                      help="Show more verbose output")
 
     options, args = parser.parse_args(args)
     settings = read_config(options.configfile)
@@ -52,11 +55,17 @@ def main(args):
         if not getattr(options, key):
             setattr(options, key, getattr(settings, key))
 
-    if os.path.exists(options.configfile):
-        if not options.quiet:
-            info("Using configuration file: %s" % options.configfile, file=sys.stderr)
+    if options.verbose:
+        options.log_level = logging.INFO
+    elif options.quiet:
+        options.log_level = logging.ERROR
     else:
-        warn("No configuration file found at %s" % options.configfile, file=sys.stderr)
+        options.log_level = logging.WARNING
+
+    if os.path.exists(options.configfile):
+        info("Using configuration file: %s" % options.configfile, options, file=sys.stderr)
+    else:
+        warn("No configuration file found at %s" % options.configfile, options, file=sys.stderr)
 
     if len(args) == 0:
         candidates = get_candidates_from_diff(sys.stdin)
@@ -72,14 +81,12 @@ def main(args):
         candidate = classify(filename)
         if candidate:
             if lines:
-                if not options.quiet:
-                    info("Reviewing %s lines %s" % (candidate, lines))
+                info("Reviewing %s lines %s" % (candidate, lines), options)
             else:
-                if not options.quiet:
-                    info("Reviewing all of %s" % candidate)
+                info("Reviewing all of %s" % candidate, options)
             errors = errors + candidate.review(options, lines)
         else:
-            warn("Couldn't classify file %s" % filename)
+            warn("Couldn't classify file %s" % filename, options)
     return errors
 
 
