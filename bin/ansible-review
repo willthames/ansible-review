@@ -42,10 +42,10 @@ def main(args):
                       help="Location of standards rules")
     parser.add_option('-r', dest='lintdir',
                       help="Location of additional lint rules")
-    parser.add_option('-q', dest='quiet', action="store_true", default=False,
-                      help="Only output errors")
-    parser.add_option('-v', dest='verbose', action="store_true", default=False,
-                      help="Show more verbose output")
+    parser.add_option('-q', dest='log_level', action="store_const", default=logging.WARN,
+                      const=logging.ERROR, help="Only output errors")
+    parser.add_option('-v', dest='log_level', action="store_const", default=logging.WARN,
+                      const=logging.INFO, help="Show more verbose output")
 
     options, args = parser.parse_args(args)
     settings = read_config(options.configfile)
@@ -54,13 +54,6 @@ def main(args):
     for key, value in settings.__dict__.iteritems():
         if not getattr(options, key):
             setattr(options, key, getattr(settings, key))
-
-    if options.verbose:
-        options.log_level = logging.INFO
-    elif options.quiet:
-        options.log_level = logging.ERROR
-    else:
-        options.log_level = logging.WARNING
 
     if os.path.exists(options.configfile):
         info("Using configuration file: %s" % options.configfile, options, file=sys.stderr)

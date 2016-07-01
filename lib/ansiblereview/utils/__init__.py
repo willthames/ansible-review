@@ -36,7 +36,8 @@ def info(message, settings, file=sys.stdout):
 
 
 def standards_latest(standards):
-    return max([standard.version for standard in standards if standard.version] or ["0.1"], key=LooseVersion)
+    return max([standard.version for standard in standards if standard.version] or ["0.1"],
+               key=LooseVersion)
 
 
 def lines_ranges(lines_spec):
@@ -75,7 +76,8 @@ def review(candidate, settings, lines=None):
                          (standards.ansible_review_min_version, __version__))
 
     if getattr(standards, 'ansible_lint_min_version', None) and \
-            LooseVersion(standards.ansible_lint_min_version) > LooseVersion(ansiblelint.version.__version__):
+            LooseVersion(standards.ansible_lint_min_version) > \
+            LooseVersion(ansiblelint.version.__version__):
         raise SystemExit("Standards require ansible-lint version %s (current version %s). "
                          "Please upgrade ansible-lint." %
                          (standards.ansible_lint_min_version, ansiblelint.version.__version__))
@@ -109,7 +111,7 @@ def review(candidate, settings, lines=None):
             if not standard.version or \
                     LooseVersion(standard.version) > LooseVersion(candidate.version):
                 warn("Future standard \"%s\" not met:\n%s:%s" %
-                     (standard.name, candidate.path, err))
+                     (standard.name, candidate.path, err), settings)
             else:
                 error("Standard \"%s\" not met:\n%s:%s" %
                       (standard.name, candidate.path, err))
