@@ -1,4 +1,5 @@
 from ansiblereview import Standard, Result, Error, lintcheck
+from ansiblereview.groupvars import same_variable_defined_in_competing_groups
 
 
 def check_fail(candidate, settings):
@@ -37,10 +38,18 @@ test_success = Standard(dict(
     types = "playbook,tasks,vars"
 ))
 
+test_matching_groupvar = Standard(dict(
+    check = same_variable_defined_in_competing_groups,
+    name = "Same variable defined in siblings",
+    types = "groupvars"
+))
+
+
 
 standards = [
         test_task_ansiblelint_success,
         test_task_ansiblelint_failure,
         test_success,
         test_failure,
+        test_matching_groupvar,
 ]

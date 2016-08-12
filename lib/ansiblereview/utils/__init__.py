@@ -60,8 +60,8 @@ def read_standards(settings):
     sys.path.append(os.path.abspath(os.path.expanduser(settings.rulesdir)))
     try:
         standards = importlib.import_module('standards')
-    except ImportError:
-        abort("Could not find standards in directory %s" % settings.rulesdir)
+    except ImportError as e:
+        abort("Could not import standards from directory %s: %s" % (settings.rulesdir, str(e)))
     return standards
 
 

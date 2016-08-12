@@ -14,6 +14,7 @@ from ansiblereview.inventory import parse, no_vars_in_host_file
 from ansiblereview.code import code_passes_flake8
 from ansiblereview.vars import repeated_vars
 from ansiblereview.playbook import repeated_names
+from ansiblereview.groupvars import same_variable_defined_in_competing_groups
 from ansiblelint.utils import normalize_task, \
     parse_yaml_linenumbers, get_action_tasks
 
@@ -266,7 +267,13 @@ with_items_bare_words = Standard(dict(
     types=["task", "handler", "playbook"]
 ))
 
-ansible_review_min_version = '0.8.0'
+test_matching_groupvar = Standard(dict(
+    check = same_variable_defined_in_competing_groups,
+    name = "Same variable defined in siblings",
+    types = "groupvars"
+))
+
+ansible_review_min_version = '0.10.0'
 ansible_lint_min_version = '3.1.1'
 
 standards = [
@@ -291,5 +298,5 @@ standards = [
     playbooks_should_not_contain_logic,
     host_vars_should_not_be_present,
     with_items_bare_words,
+    test_matching_groupvar,
 ]
-

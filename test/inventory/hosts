@@ -1,0 +1,15 @@
+[application:children]
+application-prod
+application-stage
+
+[application-prod]
+app-prod-A
+app-prod-B
+
+[application-stage]
+app-stage-A
+app-stage-B
+
+[azA]
+app-prod-A
+app-stage-A
