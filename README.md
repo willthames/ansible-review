@@ -9,9 +9,10 @@ pip install ansible-review
 ## From source
 
 ```
+# Install dependency https://github.com/willthames/ansible-lint
 git clone https://github.com/willthames/ansible-review
-export $PYTHONPATH=$PYTHONPATH:`pwd`/lib
-export $PATH=$PATH:`pwd`/bin
+export PYTHONPATH=$PYTHONPATH:`pwd`/ansible-review/lib
+export PATH=$PATH:`pwd`/ansible-review/bin
 ```
 
 
