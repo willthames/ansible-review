@@ -182,12 +182,12 @@ def classify(filename):
         return Code(filename)
     if 'rolesfile' in filename or 'requirements' in filename:
         return Rolesfile(filename)
-    if filename.endswith('.yml') or filename.endswith('.yaml'):
-        return Playbook(filename)
     if 'templates' in filename.split(os.sep):
         return Template(filename)
     if 'files' in filename.split(os.sep):
         return File(filename)
+    if filename.endswith('.yml') or filename.endswith('.yaml'):
+        return Playbook(filename)
     if 'README' in filename:
         return Doc(filename)
     return None

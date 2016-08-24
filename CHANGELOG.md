@@ -1,3 +1,6 @@
+### 0.10.1
+* Fix mis-classification of files with .yml suffix
+
 ### 0.10.0
 * Add check for competing group variables
 
