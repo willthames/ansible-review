@@ -75,6 +75,9 @@ lint = /path/to/your/ansible/lint/rules
 standards = /path/to/your/standards/rules
 ```
 
+The standards directory can be overridden with the `-d` argument,
+and the lint rules directory can be overriden with the `-r` argument.
+
 
 ## Standards file
 
@@ -108,6 +111,18 @@ a message to be displayed but won't constitute a failure.
 
 An example standards file is available in
 [examples/standards.py](examples/standards.py)
+
+If you only want to check one or two standards quickly (perhaps you want
+to review your entire code base for deprecated bare words), you can use the
+`-s` flag with the name of your standard. You can pass `-s` multiple times.
+
+```
+git ls-files | xargs ansible-review -s "bare words are deprecated for with_items"
+```
+
+you can see the name of the standards being checked for each different file by running
+`ansible-review` with the `-v` option.
+
 
 ## Standards checks
 

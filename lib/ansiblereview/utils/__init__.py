@@ -104,6 +104,8 @@ def review(candidate, settings, lines=None):
     for standard in standards.standards:
         if type(candidate).__name__.lower() not in standard.types:
             continue
+        if settings.standards_filter and standard.name not in settings.standards_filter:
+            continue
         result = standard.check(candidate, settings)
         for err in [err for err in result.errors
                     if not err.lineno or

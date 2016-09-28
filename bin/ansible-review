@@ -44,6 +44,8 @@ def main(args):
                       help="Location of additional lint rules")
     parser.add_option('-q', dest='log_level', action="store_const", default=logging.WARN,
                       const=logging.ERROR, help="Only output errors")
+    parser.add_option('-s', dest='standards_filter', action='append',
+                      help="limit standards to specific names")
     parser.add_option('-v', dest='log_level', action="store_const", default=logging.WARN,
                       const=logging.INFO, help="Show more verbose output")
 
