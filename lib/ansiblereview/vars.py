@@ -22,12 +22,13 @@ def hunt_repeated_yaml_keys(data):
         errors = dict()
         for key_node, value_node in node.value:
             key = key_node.value
-
             if key in mapping:
-                errors[key] = node.__line__
+                if key in errors:
+                    errors[key].append(key_node.__line__)
+                else:
+                    errors[key] = [mapping[key], key_node.__line__]
 
-            value = value_node.value
-            mapping[key] = value
+            mapping[key] = key_node.__line__
 
         return errors
 
@@ -38,7 +39,7 @@ def hunt_repeated_yaml_keys(data):
 
 
 def repeated_vars(candidate, settings):
-    with codecs.open(candidate.path, 'r') as text:
-        errors = hunt_repeated_yaml_keys(text) or dict()
-    return Result([Error(errors[err], "Variable %s occurs more than once" % err) for
-                   err in errors])
+    with codecs.open(candidate.path, 'r') as f:
+        errors = hunt_repeated_yaml_keys(f) or dict()
+    return Result(candidate, [Error(err_line, "Variable %s occurs more than once" % err_key)
+                              for err_key in errors for err_line in errors[err_key]])
