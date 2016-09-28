@@ -1,3 +1,8 @@
+### 0.11.0
+* Make `repeated_vars` actually work
+* Create `Makefile` classification
+* Enable filtering of standard rules to run with `-s`
+
 ### 0.10.1
 * Fix mis-classification of files with .yml suffix
 
