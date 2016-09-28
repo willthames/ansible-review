@@ -153,6 +153,11 @@ class Doc(Unversioned):
     pass
 
 
+# For ease of checking files for tabs
+class Makefile(Unversioned):
+    pass
+
+
 class File(RoleFile):
     pass
 
@@ -182,6 +187,8 @@ def classify(filename):
         return Code(filename)
     if 'rolesfile' in filename or 'requirements' in filename:
         return Rolesfile(filename)
+    if 'Makefile' in filename:
+        return Makefile(filename)
     if 'templates' in filename.split(os.sep):
         return Template(filename)
     if 'files' in filename.split(os.sep):
