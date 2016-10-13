@@ -180,11 +180,11 @@ def classify(filename):
         return HostVars(filename)
     if parentdir == 'meta':
         return Meta(filename)
-    if parentdir in ['inventory']:
-        return Inventory(filename)
     if parentdir in ['library', 'lookup_plugins', 'callback_plugins',
                      'filter_plugins'] or filename.endswith('.py'):
         return Code(filename)
+    if parentdir in ['inventory']:
+        return Inventory(filename)
     if 'rolesfile' in filename or 'requirements' in filename:
         return Rolesfile(filename)
     if 'Makefile' in filename:
