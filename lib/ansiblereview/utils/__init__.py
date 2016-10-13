@@ -152,8 +152,7 @@ class ExecuteResult(object):
 
 def execute(cmd):
     result = ExecuteResult()
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
-    result.output = proc.communicate()[0]
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    result.output, result.error = proc.communicate()
     result.rc = proc.returncode
     return result

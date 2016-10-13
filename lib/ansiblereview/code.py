@@ -8,4 +8,5 @@ def code_passes_flake8(candidate, options):
         for line in result.output.strip().split('\n'):
             lineno = int(line.split(':')[1])
             errors.append(Error(lineno, line))
+
     return Result(candidate.path, errors)
