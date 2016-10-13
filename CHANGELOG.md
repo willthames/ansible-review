@@ -1,3 +1,6 @@
+### 0.11.1
+* Add `importlib` as dependency
+
 ### 0.11.0
 * Make `repeated_vars` actually work
 * Create `Makefile` classification
