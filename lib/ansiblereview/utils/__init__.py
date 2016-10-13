@@ -152,10 +152,8 @@ class ExecuteResult(object):
 
 def execute(cmd):
     result = ExecuteResult()
-    try:
-        result.output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        result.rc = 0
-    except subprocess.CalledProcessError, e:
-        result.rc = e.returncode
-        result.output = e.output
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT)
+    result.output = proc.communicate()[0]
+    result.rc = proc.returncode
     return result
