@@ -74,7 +74,7 @@ def review(candidate, settings, lines=None):
             LooseVersion(standards.ansible_min_version) > LooseVersion(ansible.__version__):
         raise SystemExit("Standards require ansible version %s (current version %s). "
                          "Please upgrade ansible." %
-                         (standards.ansible_min_version, __version__))
+                         (standards.ansible_min_version, ansible.__version__))
 
     if getattr(standards, 'ansible_review_min_version', None) and \
             LooseVersion(standards.ansible_review_min_version) > LooseVersion(__version__):

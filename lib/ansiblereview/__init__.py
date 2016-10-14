@@ -189,7 +189,7 @@ def classify(filename):
         return Rolesfile(filename)
     if 'Makefile' in filename:
         return Makefile(filename)
-    if 'templates' in filename.split(os.sep):
+    if 'templates' in filename.split(os.sep) or filename.endswith('.j2'):
         return Template(filename)
     if 'files' in filename.split(os.sep):
         return File(filename)
