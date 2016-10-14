@@ -1,3 +1,8 @@
+### 0.12.0
+* Add `metamain_check` and `play_check` abstractions
+* Ensure inventory scripts are detected as code
+* Add `ansible_min_version` declaration
+
 ### 0.11.1
 * Add `importlib` as dependency
 

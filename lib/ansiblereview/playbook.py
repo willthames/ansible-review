@@ -1,5 +1,5 @@
 from ansiblereview import utils, Playbook, Result, Error
-import ansiblelint
+from ansiblelint.utils import parse_yaml_linenumbers, get_action_tasks
 import codecs
 from collections import defaultdict
 import os
@@ -42,11 +42,11 @@ def review(playbook, settings):
 
 def repeated_names(playbook, settings):
     with codecs.open(playbook['path'], mode='rb', encoding='utf-8') as f:
-        yaml = ansiblelint.utils.parse_yaml_linenumbers(f, playbook['path'])
+        yaml = parse_yaml_linenumbers(f, playbook['path'])
     namelines = defaultdict(list)
     errors = []
     if yaml:
-        for task in ansiblelint.utils.get_action_tasks(yaml, playbook):
+        for task in get_action_tasks(yaml, playbook):
             if 'name' in task:
                 namelines[task['name']].append(task['__line__'])
         for (name, lines) in namelines.items():
@@ -54,3 +54,12 @@ def repeated_names(playbook, settings):
                 errors.append(Error(lines[-1],
                                     "Task/handler name %s appears multiple times" % name))
     return Result(playbook, errors)
+
+
+def play_check(playbook, settings, play_fn):
+    errors = []
+    with codecs.open(playbook.path, mode='rb', encoding='utf-8') as f:
+        plays = parse_yaml_linenumbers(f.read(), playbook.path)
+        for play in plays:
+            errors.extend(play_fn(play))
+    return Result(playbook.path, errors)
