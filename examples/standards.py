@@ -1,12 +1,5 @@
-# This is an example standards file (based on real needs)
-# Playbooks and meta/main.yml files are expected (but not
-# required) to declare a standards version. Typically you
-# will add new standards at a particular version and then
-# add a `version` specification to a standard.
-
 import codecs
 import os
-import yaml
 
 from ansiblereview import Result, Error, Standard, lintcheck
 from ansiblereview.utils.yamlindent import yamlreview
@@ -14,108 +7,10 @@ from ansiblereview.inventory import parse, no_vars_in_host_file
 from ansiblereview.code import code_passes_flake8
 from ansiblereview.vars import repeated_vars
 from ansiblereview.playbook import repeated_names
+from ansiblereview.rolesfile import yamlrolesfile
+from ansiblereview.tasks import yaml_form_rather_than_key_value
 from ansiblereview.groupvars import same_variable_defined_in_competing_groups
-from ansiblelint.utils import normalize_task, \
-    parse_yaml_linenumbers, get_action_tasks
-
-
-def yaml_form_rather_than_key_value(candidate, settings):
-    with codecs.open(candidate.path, mode='rb', encoding='utf-8') as f:
-        content = parse_yaml_linenumbers(f.read(), candidate.path)
-    errors = []
-    if content:
-        fileinfo = dict(type=candidate.filetype, path=candidate.path)
-        for task in get_action_tasks(content, fileinfo):
-            normal_form = normalize_task(task, candidate.path)
-            action = normal_form['action']['__ansible_module__']
-            arguments = normal_form['action']['__ansible_arguments__']
-            # FIXME: This is a bug - perhaps when connection is local
-            # or similar
-            if action not in task:
-                continue
-            if isinstance(task[action], dict):
-                continue
-            if task[action] != ' '.join(arguments):
-                errors.append(Error(task['__line__'], "Task arguments appear "
-                                    "to be in key value rather "
-                                    "than YAML format"))
-    return Result(candidate.path, errors)
-
-
-def files_should_have_actual_content(candidate, settings):
-    errors = []
-    with codecs.open(candidate.path, mode='rb', encoding='utf-8') as f:
-        content = yaml.load(f.read())
-    if not content:
-        errors = [Error(None, "%s appears to have no useful content" % candidate)]
-    return Result(candidate.path, errors)
-
-
-def metamain(candidate, settings):
-    try:
-        fh = codecs.open(candidate.path, mode='rb', encoding='utf-8')
-    except IOError, e:
-        result = Result(candidate)
-        result.errors = [Error(None, "Could not open %s: %s" %
-                               (candidate.path, e))]
-    try:
-        result = Result(candidate)
-        data = yaml.safe_load(fh)
-        if 'dependencies' in data:
-            if data["dependencies"] == []:
-                return result
-            else:
-                result.errors = [Error(None, "Role dependencies are "
-                                             "not empty")]
-        else:
-            result.errors = [Error(None, "Role meta/main.yml does "
-                                         "not contain a dependencies section")]
-    except Exception, e:
-        result.errors = [Error(None, "Could not parse in %s: %s" %
-                               (candidate.path, e))]
-    finally:
-        fh.close()
-    return result
-
-
-def yamlrolesfile(candidate, settings):
-    rolesfile = os.path.join(os.path.dirname(candidate.path), "rolesfile")
-    result = Result(candidate)
-    if os.path.exists(rolesfile) and not os.path.exists(rolesfile + ".yml"):
-        result.errors = [Error(None, "Rolesfile %s does not "
-                                     "have a yaml extension" % rolesfile)]
-        return result
-    rolesfile = os.path.join(os.path.dirname(candidate.path), "rolesfile.yml")
-    if os.path.exists(rolesfile):
-        with codecs.open(rolesfile, mode='rb', encoding='utf-8') as f:
-            try:
-                yaml.safe_load(f)
-            except Exception, e:
-                result.errors = [Error(None, "Cannot parse YAML from %s: %s" %
-                                       (rolesfile, str(e)))]
-    return result
-
-
-def playbook_contains_logic(candidate, settings):
-    errors = []
-    with codecs.open(candidate.path, mode='rb', encoding='utf-8') as f:
-        plays = parse_yaml_linenumbers(f.read(), candidate.path)
-    for logic in ['tasks', 'pre_tasks', 'post_tasks', 'vars', 'handlers']:
-        for play in plays:
-            if logic in play:
-                if isinstance(play[logic], list):
-                    firstitemline = play[logic][0]['__line__'] - 1
-                elif isinstance(play[logic], dict):
-                    firstitemline = play[logic]['__line__']
-                else:
-                    continue
-                # we can only access line number of first thing in the section
-                # so we guess the section starts on the line above. 
-                errors.append(Error(firstitemline,
-                                    "%s should not be required in a play" %
-                                    logic))
-
-    return Result(candidate.path, errors)
+from ansiblelint.utils import parse_yaml_linenumbers
 
 
 def rolesfile_contains_scm_in_src(candidate, settings):
@@ -136,7 +31,12 @@ def rolesfile_contains_scm_in_src(candidate, settings):
 
 
 def host_vars_exist(candidate, settings):
-    return Result(candidate.path, [Error(None, "Host vars are generally not required")])
+    return Result(candidate.path, [Error(None, "Host vars are generally "
+                                         "not required")])
+
+
+def noop(candidate, settings):
+    return Result(candidate.path)
 
 
 rolesfile_should_be_in_yaml = Standard(dict(
@@ -147,8 +47,21 @@ rolesfile_should_be_in_yaml = Standard(dict(
 
 role_must_contain_meta_main = Standard(dict(
     name="Roles must contain suitable meta/main.yml",
-    check=metamain,
+    check=lintcheck('EXTRA0012'),
     types=["meta"]
+))
+
+role_meta_main_must_contain_info = Standard(dict(
+    name="Roles meta/main.yml must contain important info",
+    check=lintcheck('EXTRA0013'),
+    types=["meta"]
+))
+
+variables_should_contain_whitespace = Standard(dict(
+    name="Variable uses should contain whitespace",
+    check=lintcheck('EXTRA0001'),
+    types=["playbook", "task", "handler", "rolevars",
+           "hostvars", "groupvars", "template"]
 ))
 
 commands_should_be_idempotent = Standard(dict(
@@ -225,6 +138,13 @@ no_command_line_environment_variables = Standard(dict(
     types=["playbook", "task", "handler"]
 ))
 
+no_lineinfile = Standard(dict(
+    name="Lineinfile module should not be used as it suggests "
+         "more than one thing is managing a file",
+    check=lintcheck('EXTRA0002'),
+    types=["playbook", "task", "handler"]
+))
+
 become_rather_than_sudo = Standard(dict(
     name="Use become/become_user/become_method rather than sudo/sudo_user",
     check=lintcheck('ANSIBLE0008'),
@@ -245,13 +165,13 @@ roles_scm_not_in_src = Standard(dict(
 
 files_should_not_be_purposeless = Standard(dict(
     name="Files should contain useful content",
-    check=files_should_have_actual_content,
+    check=lintcheck('EXTRA0011'),
     types=["playbook", "task", "handler", "rolevars", "defaults", "meta"]
 ))
 
 playbooks_should_not_contain_logic = Standard(dict(
     name="Playbooks should not contain logic (vars, tasks, handlers)",
-    check=playbook_contains_logic,
+    check=lintcheck('EXTRA0008'),
     types=["playbook"]
 ))
 
@@ -264,22 +184,99 @@ host_vars_should_not_be_present = Standard(dict(
 with_items_bare_words = Standard(dict(
     name="bare words are deprecated for with_items",
     check=lintcheck('ANSIBLE0015'),
+    types=["task", "handler", "playbook"],
+    version="0.0"
+))
+
+file_permissions_are_octal = Standard(dict(
+    name="octal file permissions should start with a leading zero",
+    check=lintcheck('ANSIBLE0009'),
     types=["task", "handler", "playbook"]
 ))
 
-test_matching_groupvar = Standard(dict(
-    check = same_variable_defined_in_competing_groups,
-    name = "Same variable defined in siblings",
-    types = "groupvars"
+inventory_hostsfile_has_group_vars = Standard(dict(
+    name="inventory file should not contain group variables",
+    check=lintcheck('EXTRA0009'),
+    types=["inventory"]
 ))
 
-ansible_review_min_version = '0.10.0'
-ansible_lint_min_version = '3.1.1'
+inventory_hostsfile_has_host_vars = Standard(dict(
+    name="inventory file should not contain host variables "
+         "(except e.g. ansible_host, ansible_user, etc.)",
+    check=lintcheck('EXTRA0010'),
+    types=["inventory"]
+))
+
+test_matching_groupvar = Standard(dict(
+    check=same_variable_defined_in_competing_groups,
+    name="Same variable defined in siblings",
+    types=["groupvars"]
+))
+
+hosts_should_not_be_localhost = Standard(dict(
+    check=lintcheck('EXTRA0007'),
+    name="Use connection: local rather than hosts: localhost",
+    types=["playbook"]
+))
+
+# tasks_should_not_use_action =
+
+use_handlers_rather_than_when_changed = Standard(dict(
+    check=lintcheck('ANSIBLE0016'),
+    name="Use handlers rather than when: changed in tasks",
+    types=['task', 'playbook']
+))
+
+most_files_shouldnt_have_tabs = Standard(dict(
+    check=lintcheck('EXTRA0005'),
+    name="Don't use tabs in almost anything that isn't a Makefile",
+    types=["playbook", "task", "handler", "rolevars", "defaults", "meta",
+           "code", "groupvars", "hostvars", "inventory", "doc", "template",
+           "file"]
+))
+
+dont_delegate_to_localhost = Standard(dict(
+    check=lintcheck('EXTRA0004'),
+    name="Use connection: local rather than delegate_to: localhost",
+    types=["playbook", "task", "handler"]
+))
+
+become_user_should_have_become = Standard(dict(
+    check=lintcheck('ANSIBLE0017'),
+    name="become_user should be accompanied by become",
+    types=["playbook", "task", "handler"]
+))
+
+dont_compare_to_literal_bool = Standard(dict(
+    check=lintcheck('EXTRA0014'),
+    name="Don't compare to True or False - use `when: var` or `when: not var`",
+    types=["playbook", "task", "handler", "template"]
+))
+
+dont_compare_to_empty_string = Standard(dict(
+    check=lintcheck('EXTRA0015'),
+    name="Don't compare to \"\" - use `when: var` or `when: not var`",
+    types=["playbook", "task", "handler", "template"]
+))
+
+# Update this every time standards version increase
+latest_version = Standard(dict(
+    check=noop,
+    name="No-op check to ensure latest standards version is set",
+    version="0.1",
+    types=[]
+))
+
+ansible_min_version = '2.1'
+ansible_review_min_version = '0.12.0'
+ansible_lint_min_version = '3.4.0'
 
 standards = [
     rolesfile_should_be_in_yaml,
     role_must_contain_meta_main,
+    role_meta_main_must_contain_info,
     become_rather_than_sudo,
+    variables_should_contain_whitespace,
     commands_should_be_idempotent,
     commands_should_not_be_used_in_place_of_modules,
     package_installs_should_not_use_latest,
@@ -292,11 +289,23 @@ standards = [
     tasks_are_uniquely_named,
     vars_are_not_repeated_in_same_file,
     no_command_line_environment_variables,
+    no_lineinfile,
     use_yaml_rather_than_key_value,
     roles_scm_not_in_src,
     files_should_not_be_purposeless,
     playbooks_should_not_contain_logic,
     host_vars_should_not_be_present,
     with_items_bare_words,
+    file_permissions_are_octal,
+    inventory_hostsfile_has_host_vars,
+    inventory_hostsfile_has_group_vars,
     test_matching_groupvar,
+    hosts_should_not_be_localhost,
+    dont_delegate_to_localhost,
+    most_files_shouldnt_have_tabs,
+    use_handlers_rather_than_when_changed,
+    become_user_should_have_become,
+    dont_compare_to_empty_string,
+    dont_compare_to_literal_bool,
+    latest_version,
 ]
