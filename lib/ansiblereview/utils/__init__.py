@@ -117,8 +117,10 @@ def review(candidate, settings, lines=None):
         for err in [err for err in result.errors
                     if not err.lineno or
                     is_line_in_ranges(err.lineno, lines_ranges(lines))]:
-            if not standard.version or \
-                    LooseVersion(standard.version) > LooseVersion(candidate.version):
+            if not standard.version:
+                warn("Best practice \"%s\" not met:\n%s:%s" %
+                     (standard.name, candidate.path, err), settings)
+            elif LooseVersion(standard.version) > LooseVersion(candidate.version):
                 warn("Future standard \"%s\" not met:\n%s:%s" %
                      (standard.name, candidate.path, err), settings)
             else:
@@ -127,7 +129,9 @@ def review(candidate, settings, lines=None):
                 errors = errors + 1
         if not result.errors:
             if not standard.version:
-                info("Proposed standard \"%s\" met" % standard.name, settings)
+                info("Best practice \"%s\" met" % standard.name, settings)
+            elif LooseVersion(standard.version) > LooseVersion(candidate.version):
+                info("Future standard \"%s\" met" % standard.name, settings)
             else:
                 info("Standard \"%s\" met" % standard.name, settings)
 
