@@ -75,6 +75,9 @@ def main(args):
             lines = None
         candidate = classify(filename)
         if candidate:
+            if candidate.binary:
+                warn("Not reviewing binary file %s" % filename, options)
+                continue
             if lines:
                 info("Reviewing %s lines %s" % (candidate, lines), options)
             else:

@@ -60,7 +60,11 @@ class Result(object):
 class Candidate(object):
     def __init__(self, filename):
         self.path = filename
-        self.version = find_version(filename)
+        try:
+            self.version = find_version(filename)
+            self.binary = False
+        except UnicodeDecodeError as e:
+            self.binary = True
         self.filetype = type(self).__name__.lower()
         self.expected_version = True
 
