@@ -54,12 +54,3 @@ def repeated_names(playbook, settings):
                 errors.append(Error(lines[-1],
                                     "Task/handler name %s appears multiple times" % name))
     return Result(playbook, errors)
-
-
-def play_check(playbook, settings, play_fn):
-    errors = []
-    with codecs.open(playbook.path, mode='rb', encoding='utf-8') as f:
-        plays = parse_yaml_linenumbers(f.read(), playbook.path)
-        for play in plays:
-            errors.extend(play_fn(play))
-    return Result(playbook.path, errors)
