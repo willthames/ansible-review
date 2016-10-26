@@ -1,7 +1,12 @@
 ### 0.12.0
-* Add `metamain_check` and `play_check` abstractions
 * Ensure inventory scripts are detected as code
 * Add `ansible_min_version` declaration
+* Call unversioned checks Best Practice rather than Future Standard
+* Move `yaml_rolesfile` and `yaml_form_rather_than_key_value` checks
+  inside ansible-review
+* Update standards and add new ansible-lint rules to back them.
+* Allow ansible-review to run from example standards and rules by
+  default
 
 ### 0.11.1
 * Add `importlib` as dependency
