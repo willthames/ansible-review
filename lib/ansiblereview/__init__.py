@@ -63,7 +63,7 @@ class Candidate(object):
         try:
             self.version = find_version(filename)
             self.binary = False
-        except UnicodeDecodeError as e:
+        except UnicodeDecodeError:
             self.binary = True
         self.filetype = type(self).__name__.lower()
         self.expected_version = True
