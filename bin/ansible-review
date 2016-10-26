@@ -58,9 +58,15 @@ def main(args):
             setattr(options, key, getattr(settings, key))
 
     if os.path.exists(options.configfile):
-        info("Using configuration file: %s" % options.configfile, options, file=sys.stderr)
+        info("Using configuration file: %s" % options.configfile, options)
     else:
         warn("No configuration file found at %s" % options.configfile, options, file=sys.stderr)
+        rules_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'examples')
+        warn("Using example standards found at %s" % rules_dir, options, file=sys.stderr)
+        options.rulesdir = rules_dir
+        lint_dir = os.path.join(rules_dir, 'lint-rules')
+        warn("Using example lint-rules found at %s" % lint_dir, options, file=sys.stderr)
+        options.lintdir = lint_dir
 
     if len(args) == 0:
         candidates = get_candidates_from_diff(sys.stdin)
