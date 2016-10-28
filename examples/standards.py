@@ -1,5 +1,6 @@
 import codecs
 import os
+import yaml
 
 from ansiblereview import Result, Error, Standard, lintcheck
 from ansiblereview.utils.yamlindent import yamlreview
@@ -28,6 +29,15 @@ def rolesfile_contains_scm_in_src(candidate, settings):
             result.errors = [Error(None, "Cannot parse YAML from %s: %s" %
                                    (candidate.path, str(e)))]
     return result
+
+
+def files_should_have_actual_content(candidate, settings):
+    errors = []
+    with codecs.open(candidate.path, mode='rb', encoding='utf-8') as f:
+        content = yaml.load(f.read())
+    if not content:
+        errors = [Error(None, "%s appears to have no useful content" % candidate)]
+    return Result(candidate.path, errors)
 
 
 def host_vars_exist(candidate, settings):
@@ -165,7 +175,7 @@ roles_scm_not_in_src = Standard(dict(
 
 files_should_not_be_purposeless = Standard(dict(
     name="Files should contain useful content",
-    check=lintcheck('EXTRA0011'),
+    check=files_should_have_actual_content,
     types=["playbook", "task", "handler", "rolevars", "defaults", "meta"]
 ))
 
