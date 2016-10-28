@@ -19,7 +19,7 @@ setup(
     package_dir={'': 'lib'},
     packages=find_packages('lib'),
     zip_safe=False,
-    install_requires=['ansible-lint>=3.4.0rc1', 'pyyaml', 'appdirs', 'unidiff', 'flake8', 'importlib'],
+    install_requires=['ansible-lint>=3.4.1', 'pyyaml', 'appdirs', 'unidiff', 'flake8', 'importlib'],
     scripts=['bin/ansible-review'],
     classifiers=[
         'License :: OSI Approved :: MIT License',

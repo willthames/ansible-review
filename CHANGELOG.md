@@ -1,3 +1,8 @@
+### 0.12.1
+* Don't depend on an RC version of ansible-lint. We rely on
+  ansible-lint 3.4.1+ because that allows matchplay to be
+  run against non-playbook files (should probably be renamed!)
+
 ### 0.12.0
 * Ensure inventory scripts are detected as code
 * Add `ansible_min_version` declaration
