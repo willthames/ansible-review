@@ -66,7 +66,7 @@ def main(args):
             warn("Using example standards found at %s" % rules_dir, options, file=sys.stderr)
             options.rulesdir = rules_dir
         if not options.lintdir:
-            lint_dir = os.path.join(options.rules_dir, 'lint-rules')
+            lint_dir = os.path.join(options.rulesdir, 'lint-rules')
             if os.path.exists(lint_dir):
                 warn("Using example lint-rules found at %s" % lint_dir, options, file=sys.stderr)
                 options.lintdir = lint_dir
