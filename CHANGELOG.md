@@ -1,3 +1,8 @@
+### 0.12.2
+* ansible-review should respect command line parameters
+  for lint and standards directories even if config is not
+  present
+
 ### 0.12.1
 * Don't depend on an RC version of ansible-lint. We rely on
   ansible-lint 3.4.1+ because that allows matchplay to be
