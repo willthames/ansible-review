@@ -3,7 +3,7 @@ import codecs
 from functools import partial
 import re
 import os
-import utils
+from ansiblereview import utils
 
 try:
     from ansible.plugins import module_loader

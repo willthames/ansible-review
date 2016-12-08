@@ -8,13 +8,17 @@ import ansiblereview
 import ansible
 from ansiblereview.version import __version__
 import ansiblelint.version
-import ConfigParser
 from distutils.version import LooseVersion
 import importlib
 import logging
 import os
 import subprocess
 import sys
+
+try:
+    import ConfigParser as configparser
+except ImportError:
+    import configparser
 
 
 def abort(message, file=sys.stderr):
@@ -146,7 +150,7 @@ class Settings(object):
 
 
 def read_config(config_file):
-    config = ConfigParser.RawConfigParser({'standards': None, 'lint': None})
+    config = configparser.RawConfigParser({'standards': None, 'lint': None})
     config.read(config_file)
 
     if config.has_section('rules'):

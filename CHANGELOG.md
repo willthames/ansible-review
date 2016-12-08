@@ -1,3 +1,6 @@
+### 0.12.3
+* python3 compatibility
+*
 ### 0.12.2
 * ansible-review should respect command line parameters
   for lint and standards directories even if config is not
