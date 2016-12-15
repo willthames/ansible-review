@@ -10,4 +10,4 @@ class HostIsLocalhostRule(AnsibleLintRule):
 
     def matchplay(self, file, data):
         if data.get('hosts') == 'localhost':
-            return [({file.type: data}, self.shortdesc)]
+            return [({file['type']: data}, self.shortdesc)]

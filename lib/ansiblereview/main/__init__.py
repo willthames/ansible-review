@@ -7,8 +7,9 @@ import os
 import sys
 from ansiblereview.version import __version__
 from ansiblereview import classify
-from ansiblereview.utils import error, info, warn, read_config
+from ansiblereview.utils import info, warn, read_config
 from appdirs import AppDirs
+from pkg_resources import resource_filename
 
 
 def get_candidates_from_diff(difftext):
@@ -30,7 +31,7 @@ def get_candidates_from_diff(difftext):
     return candidates
 
 
-def main(args):
+def main():
     config_dir = AppDirs("ansible-review", "com.github.willthames").user_config_dir
     default_config_file = os.path.join(config_dir, "config.ini")
 
@@ -49,7 +50,7 @@ def main(args):
     parser.add_option('-v', dest='log_level', action="store_const", default=logging.WARN,
                       const=logging.INFO, help="Show more verbose output")
 
-    options, args = parser.parse_args(args)
+    options, args = parser.parse_args(sys.argv[1:])
     settings = read_config(options.configfile)
 
     # Merge CLI options with config options. CLI options override config options.
@@ -62,7 +63,7 @@ def main(args):
     else:
         warn("No configuration file found at %s" % options.configfile, options, file=sys.stderr)
         if not options.rulesdir:
-            rules_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'examples')
+            rules_dir = os.path.join(resource_filename('ansiblereview', 'examples'))
             warn("Using example standards found at %s" % rules_dir, options, file=sys.stderr)
             options.rulesdir = rules_dir
         if not options.lintdir:
@@ -95,7 +96,3 @@ def main(args):
         else:
             warn("Couldn't classify file %s" % filename, options)
     return errors
-
-
-if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))

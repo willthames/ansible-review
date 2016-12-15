@@ -18,9 +18,14 @@ setup(
     url='https://github.com/willthames/ansible-review',
     package_dir={'': 'lib'},
     packages=find_packages('lib'),
+    include_package_data=True,
     zip_safe=False,
     install_requires=['ansible-lint>=3.4.1', 'pyyaml', 'appdirs', 'unidiff', 'flake8'],
-    scripts=['bin/ansible-review'],
+    entry_points={
+        'console_scripts': [
+            'ansible-review = ansiblereview.main:main'
+        ]
+    },
     classifiers=[
         'License :: OSI Approved :: MIT License',
     ],
