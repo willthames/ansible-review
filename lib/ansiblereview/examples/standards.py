@@ -34,7 +34,7 @@ def rolesfile_contains_scm_in_src(candidate, settings):
 def files_should_have_actual_content(candidate, settings):
     errors = []
     with codecs.open(candidate.path, mode='rb', encoding='utf-8') as f:
-        content = yaml.load(f.read())
+        content = yaml.safe_load(f.read())
     if not content:
         errors = [Error(None, "%s appears to have no useful content" % candidate)]
     return Result(candidate.path, errors)
