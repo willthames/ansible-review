@@ -25,7 +25,7 @@ def rolesfile_contains_scm_in_src(candidate, settings):
                     error = Error(role['__line__'], "Use scm key rather "
                                   "than src: scm+url")
                     result.errors.append(error)
-        except Exception, e:
+        except Exception as e:
             result.errors = [Error(None, "Cannot parse YAML from %s: %s" %
                                    (candidate.path, str(e)))]
     return result

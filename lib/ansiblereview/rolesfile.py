@@ -17,7 +17,7 @@ def yamlrolesfile(candidate, settings):
         with codecs.open(rolesfile, mode='rb', encoding='utf-8') as f:
             try:
                 yaml.safe_load(f)
-            except Exception, e:
+            except Exception as e:
                 result.errors = [Error(None, "Cannot parse YAML from %s: %s" %
                                        (rolesfile, str(e)))]
     return result
