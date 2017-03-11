@@ -121,7 +121,7 @@ inventory_hostfiles_should_not_contain_vars = Standard(dict(
 code_should_meet_flake8 = Standard(dict(
     name="Python code should pass flake8",
     check=code_passes_flake8,
-    types=["code"]
+    types=["pythoncode"]
 ))
 
 tasks_are_named = Standard(dict(
