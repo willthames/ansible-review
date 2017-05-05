@@ -1,3 +1,13 @@
+### 0.13.1
+* restructure __main__ and main along pythonic standards
+* reintroduce bin/ansible-review for running from source only
+
+### 0.13.0
+* Ensure that the examples live inside the python package
+* Use console_script entry point rather than bin/ansible-review
+* Fix some minor rule bugs
+* Update to version 0.13.0
+
 ### 0.12.3
 * python3 compatibility
 *

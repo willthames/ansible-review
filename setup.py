@@ -23,7 +23,7 @@ setup(
     install_requires=['ansible-lint>=3.4.1', 'pyyaml', 'appdirs', 'unidiff', 'flake8'],
     entry_points={
         'console_scripts': [
-            'ansible-review = ansiblereview.main:main'
+            'ansible-review = ansiblereview.__main__:main'
         ]
     },
     classifiers=[
