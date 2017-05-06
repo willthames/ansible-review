@@ -19,7 +19,17 @@ export PATH=$PATH:`pwd`/ansible-review/bin
 # Usage
 
 ```
-ansible-review reviewtarget [target2...]
+ansible-review FILES
+```
+
+Where FILES is a space delimited list of files to review.
+ansible-review is _not_ recursive and won't descend 
+into child folders; it just processes the list of files you give it.
+
+Passing a folder in with the list of files will elicit a warning:
+
+```
+WARN: Couldn't classify file ./foldername
 ```
 
 ansible-review will review inventory files, role
@@ -42,13 +52,23 @@ files, python code (modules, plugins) and playbooks.
 
 ## Typical approaches
 
+### Git repositories
+
 * `git ls-files | xargs ansible-review` works well in
   a roles repo to review the whole role. But it will
   review the whole of other repos too.
 * `git diff branch_to_compare | ansible-review` will
   review only the changes between the branches and
   surrounding context.
+  
+### Without git
 
+* `find . -type f | xargs ansible-review` will review
+  all files in the current folder (and all subfolders),
+  even if they're not checked into git
+* `ansible-review ./*` will review all the files in the
+  current folder (but not subfolders: bash will expand the
+  `./*` glob into a list of files in the current folder).
 
 # Reviews
 
