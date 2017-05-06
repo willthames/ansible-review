@@ -66,9 +66,6 @@ files, python code (modules, plugins) and playbooks.
 * `find . -type f | xargs ansible-review` will review
   all files in the current folder (and all subfolders),
   even if they're not checked into git
-* `ansible-review ./*` will review all the files in the
-  current folder (but not subfolders: bash will expand the
-  `./*` glob into a list of files in the current folder).
 
 # Reviews
 
