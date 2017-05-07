@@ -1,3 +1,6 @@
+### 0.13.2
+* Move to yaml.safe_load to avoid code execution
+
 ### 0.13.1
 * restructure __main__ and main along pythonic standards
 * reintroduce bin/ansible-review for running from source only
