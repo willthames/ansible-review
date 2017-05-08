@@ -33,6 +33,6 @@ def parse(candidate, options):
                                         host_list=candidate.path)
         else:
             ansible.inventory.Inventory(candidate.path)
-    except Exception, e:
+    except Exception as e:
         result.errors = [Error(None, "Inventory is broken: %s" % e.message)]
     return result
