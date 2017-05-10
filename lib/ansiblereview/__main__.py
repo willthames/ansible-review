@@ -50,6 +50,20 @@ def main():
     parser.add_option('-v', dest='log_level', action="store_const", default=logging.WARN,
                       const=logging.INFO, help="Show more verbose output")
 
+    parser.add_option('--output_info', dest='output_info',
+                      help="Where to output INFO messages: stdout|stderr")
+    parser.add_option('--output_warn', dest='output_warn',
+                      help="Where to output WARN messages: stdout|stderr")
+    parser.add_option('--output_error', dest='output_error',
+                      help="Where to output ERROR messages: stdout|stderr")
+    parser.add_option('--output_fatal', dest='output_fatal',
+                      help="Where to output FATAL messages: stdout|stderr")
+    parser.add_option('--wrap_long_lines', dest='wrap_long_lines',
+                      help="Wrap long lines of output, or output each message on a single line.")
+    parser.add_option('--print_options', dest='print_options', default=False,
+                      help="Print out effective config options, before starting.")
+
+
     options, args = parser.parse_args(sys.argv[1:])
     settings = read_config(options.configfile)
 
@@ -71,6 +85,9 @@ def main():
             if os.path.exists(lint_dir):
                 warn("Using example lint-rules found at %s" % lint_dir, options, file=sys.stderr)
                 options.lintdir = lint_dir
+
+    if options.print_options:
+        print(str(options))
 
     if len(args) == 0:
         candidates = get_candidates_from_diff(sys.stdin)
