@@ -171,7 +171,7 @@ class Settings(object):
         self.output_error = values.get('output_error', 'stderr')
         self.output_fatal = values.get('output_fatal', 'stderr')
 
-        self.wrap_long_lines = values.get('wrap_long_lines', False)
+        self.wrap_long_lines = values.get('wrap_long_lines', True)
 
 
 def read_config(config_file):
