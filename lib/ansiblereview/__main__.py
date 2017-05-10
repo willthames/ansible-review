@@ -11,6 +11,8 @@ from ansiblereview.utils import info, warn, read_config
 from appdirs import AppDirs
 from pkg_resources import resource_filename
 
+from copy import copy
+from optparse import Option, OptionValueError
 
 def get_candidates_from_diff(difftext):
     try:
@@ -31,12 +33,25 @@ def get_candidates_from_diff(difftext):
     return candidates
 
 
+def check_boolean(option, opt, value):
+    try:
+        return value.lower() in ("yes", "true", "t", "1")
+    except ValueError:
+        raise OptionValueError(
+            "option %s: invalid boolean value: %r" % (opt, value))
+
+class MyOption (Option):
+    TYPES = Option.TYPES + ("boolean",)
+    TYPE_CHECKER = copy(Option.TYPE_CHECKER)
+    TYPE_CHECKER["boolean"] = check_boolean
+
+
 def main():
     config_dir = AppDirs("ansible-review", "com.github.willthames").user_config_dir
     default_config_file = os.path.join(config_dir, "config.ini")
 
     parser = optparse.OptionParser("%prog playbook_file|role_file|inventory_file",
-                                   version="%prog " + __version__)
+                                   version="%prog " + __version__, option_class=MyOption)
     parser.add_option('-c', dest='configfile', default=default_config_file,
                       help="Location of configuration file: [%s]" % default_config_file)
     parser.add_option('-d', dest='rulesdir',
@@ -58,9 +73,11 @@ def main():
                       help="Where to output ERROR messages: stdout|stderr")
     parser.add_option('--output_fatal', dest='output_fatal',
                       help="Where to output FATAL messages: stdout|stderr")
-    parser.add_option('--wrap_long_lines', dest='wrap_long_lines',
+
+    parser.add_option('--wrap_long_lines', dest='wrap_long_lines', type="boolean",
                       help="Wrap long lines of output, or output each message on a single line.")
-    parser.add_option('--print_options', dest='print_options', default=False,
+
+    parser.add_option('--print_options', dest='print_options', type="boolean", default=False,
                       help="Print out effective config options, before starting.")
 
 
