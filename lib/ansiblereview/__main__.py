@@ -14,6 +14,7 @@ from pkg_resources import resource_filename
 from copy import copy
 from optparse import Option, OptionValueError
 
+
 def get_candidates_from_diff(difftext):
     try:
         import unidiff
