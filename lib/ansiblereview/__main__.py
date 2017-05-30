@@ -20,7 +20,7 @@ def get_candidates_from_diff(difftext):
     patch = unidiff.PatchSet(sys.stdin)
 
     candidates = []
-    for patchedfile in [patchfile for patchfile in
+    for patchedfile in [patchfile for patchfile in/
                         patch.added_files + patch.modified_files]:
         if patchedfile.source_file == '/dev/null':
             candidates.append(patchedfile.path)
@@ -54,9 +54,15 @@ def main():
     settings = read_config(options.configfile)
 
     # Merge CLI options with config options. CLI options override config options.
-    for key, value in settings.__dict__.iteritems():
-        if not getattr(options, key):
+    if sys.version_info <= (3, 0):
+       for key, value in settings.__dict__.iteritems():
+          if not getattr(options, key):
             setattr(options, key, getattr(settings, key))
+    else:
+       for key, value in settings.__dict__.items():
+          if not getattr(options, key):
+            setattr(options, key, getattr(settings, key))
+
 
     if os.path.exists(options.configfile):
         info("Using configuration file: %s" % options.configfile, options)
