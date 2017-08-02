@@ -21,21 +21,29 @@ except ImportError:
     import configparser
 
 
-def abort(message, file=sys.stderr):
+def abort(message, settings, file=None):
+    if file is None:
+        file = getattr(sys, settings.output_abort)
     print(stringc("FATAL: %s" % message, 'red'), file=file)
     sys.exit(1)
 
 
-def error(message, file=sys.stderr):
+def error(message, settings, file=None):
+    if file is None:
+        file = getattr(sys, settings.output_error)
     print(stringc("ERROR: %s" % message, 'red'), file=file)
 
 
-def warn(message, settings, file=sys.stdout):
+def warn(message, settings, file=None):
+    if file is None:
+        file = getattr(sys, settings.output_warn)
     if settings.log_level <= logging.WARNING:
         print(stringc("WARN: %s" % message, 'yellow'), file=file)
 
 
-def info(message, settings, file=sys.stdout):
+def info(message, settings, file=None):
+    if file is None:
+        file = getattr(sys, settings.output_info)
     if settings.log_level <= logging.INFO:
         print(stringc("INFO: %s" % message, 'green'), file=file)
 
@@ -61,12 +69,12 @@ def is_line_in_ranges(line, ranges):
 
 def read_standards(settings):
     if not settings.rulesdir:
-        abort("Standards directory is not set on command line or in configuration file - aborting")
+        abort("Standards directory is not set on command line or in configuration file - aborting", settings)
     sys.path.append(os.path.abspath(os.path.expanduser(settings.rulesdir)))
     try:
         standards = importlib.import_module('standards')
     except ImportError as e:
-        abort("Could not import standards from directory %s: %s" % (settings.rulesdir, str(e)))
+        abort("Could not import standards from directory %s: %s" % (settings.rulesdir, str(e)), settings)
     return standards
 
 
@@ -112,6 +120,11 @@ def review(candidate, settings, lines=None):
          (type(candidate).__name__, candidate.path, candidate.version),
          settings)
 
+    if settings.wrap_long_lines:
+        br = '\n'
+    else:
+        br = ' '
+
     for standard in standards.standards:
         if type(candidate).__name__.lower() not in standard.types:
             continue
@@ -122,14 +135,14 @@ def review(candidate, settings, lines=None):
                     if not err.lineno or
                     is_line_in_ranges(err.lineno, lines_ranges(lines))]:
             if not standard.version:
-                warn("Best practice \"%s\" not met:\n%s:%s" %
-                     (standard.name, candidate.path, err), settings)
+                warn("Best practice \"%s\" not met:%s%s:%s" %
+                     (standard.name, br, candidate.path, err), settings)
             elif LooseVersion(standard.version) > LooseVersion(candidate.version):
-                warn("Future standard \"%s\" not met:\n%s:%s" %
-                     (standard.name, candidate.path, err), settings)
+                warn("Future standard \"%s\" not met:%s%s:%s" %
+                     (standard.name, br, candidate.path, err), settings)
             else:
-                error("Standard \"%s\" not met:\n%s:%s" %
-                      (standard.name, candidate.path, err))
+                error("Standard \"%s\" not met:%s%s:%s" %
+                      (standard.name, br, candidate.path, err), settings)
                 errors = errors + 1
         if not result.errors:
             if not standard.version:
@@ -142,23 +155,44 @@ def review(candidate, settings, lines=None):
     return errors
 
 
+# TODO: Settings & read_config should probably just use:
+#
+# config.read(...)
+# config._sections - which is a dict of the config file contents
 class Settings(object):
     def __init__(self, values):
-        self.rulesdir = values.get('rulesdir')
-        self.lintdir = values.get('lintdir')
+        self.rulesdir = values.get('rulesdir', None)
+        self.lintdir = values.get('lintdir', None)
+
         self.configfile = values.get('configfile')
+
+        self.output_info = values.get('output_info', 'stdout')
+        self.output_warn = values.get('output_warn', 'stdout')
+        self.output_error = values.get('output_error', 'stderr')
+        self.output_fatal = values.get('output_fatal', 'stderr')
+
+        self.wrap_long_lines = values.get('wrap_long_lines', True) == 'True'
 
 
 def read_config(config_file):
     config = configparser.RawConfigParser({'standards': None, 'lint': None})
     config.read(config_file)
 
+    tmp_settings = dict(configfile=config_file)
+
     if config.has_section('rules'):
-        return Settings(dict(rulesdir=config.get('rules', 'standards'),
-                             lintdir=config.get('rules', 'lint'),
-                             configfile=config_file))
-    else:
-        return Settings(dict(rulesdir=None, lintdir=None, configfile=config_file))
+        tmp_settings['rulesdir'] = config.get('rules', 'standards')
+        tmp_settings['lintdir'] = config.get('rules', 'lint')
+
+    if config.has_section('output'):
+        tmp_settings['output_info'] = config.get('output', 'info')
+        tmp_settings['output_warn'] = config.get('output', 'warn')
+        tmp_settings['output_error'] = config.get('output', 'error')
+        tmp_settings['output_fatal'] = config.get('output', 'fatal')
+
+        tmp_settings['wrap_long_lines'] = config.get('output', 'wrap_long_lines')
+
+    return Settings(tmp_settings)
 
 
 class ExecuteResult(object):
