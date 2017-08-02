@@ -170,7 +170,13 @@ class Rolesfile(Unversioned):
     pass
 
 
+class Folder(Unversioned):
+    pass
+
+
 def classify(filename):
+    if (os.path.isdir(filename)):
+        return Folder(filename)
     parentdir = os.path.basename(os.path.dirname(filename))
     if parentdir in ['tasks']:
         return Task(filename)
