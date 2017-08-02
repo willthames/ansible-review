@@ -126,8 +126,8 @@ using, otherwise ansible-review assumes you're using the latest.
 To add standards that are advisory, don't set the version. These will cause
 a message to be displayed but won't constitute a failure.
 
-An example standards file is available in
-[examples/standards.py](examples/standards.py)
+An example standards file is available at
+[lib/ansiblereview/examples/standards.py](lib/ansiblereview/examples/standards.py)
 
 If you only want to check one or two standards quickly (perhaps you want
 to review your entire code base for deprecated bare words), you can use the
