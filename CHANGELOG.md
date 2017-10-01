@@ -1,3 +1,6 @@
+### 0.13.3
+* Import module_loader from ansible.plugins.loader for ansible2.4
+
 ### 0.13.2
 * Move to yaml.safe_load to avoid code execution
 
@@ -13,7 +16,7 @@
 
 ### 0.12.3
 * python3 compatibility
-*
+
 ### 0.12.2
 * ansible-review should respect command line parameters
   for lint and standards directories even if config is not

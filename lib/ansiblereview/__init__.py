@@ -6,9 +6,13 @@ import os
 from ansiblereview import utils
 
 try:
-    from ansible.plugins import module_loader
+    # Ansible 2.4 import of module loader
+    from ansible.plugins.loader import module_loader
 except ImportError:
-    from ansible.utils import module_finder as module_loader
+    try:
+        from ansible.plugins import module_loader
+    except ImportError:
+        from ansible.utils import module_finder as module_loader
 
 
 class AnsibleReviewFormatter(object):
