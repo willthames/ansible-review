@@ -1,4 +1,4 @@
-### 0.13.3
+### 0.13.4
 * Import module_loader from ansible.plugins.loader for ansible2.4
 
 ### 0.13.2
