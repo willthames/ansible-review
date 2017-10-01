@@ -1,3 +1,7 @@
+### 0.11.1
+
+* Ansible 2.4 compatibility
+
 ### 0.11.0
 * Make `repeated_vars` actually work
 * Create `Makefile` classification
