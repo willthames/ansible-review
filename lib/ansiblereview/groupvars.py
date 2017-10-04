@@ -6,10 +6,14 @@ import os
 
 try:
     import ansible.parsing.dataloader
-    import ansible.vars
+    from ansible.vars.manager import VariableManager
     ANSIBLE = 2
 except ImportError:
-    ANSIBLE = 1
+    try:
+        from ansible.vars.manager import VariableManager
+        ANSIBLE = 2
+    except ImportError:
+        ANSIBLE = 1
 
 
 _vars = dict()
@@ -53,10 +57,14 @@ def same_variable_defined_in_competing_groups(candidate, options):
     try:
         if ANSIBLE > 1:
             loader = ansible.parsing.dataloader.DataLoader()
-            var_manager = ansible.vars.VariableManager()
-            inv = _inv or ansible.inventory.Inventory(loader=loader,
-                                                      variable_manager=var_manager,
-                                                      host_list=invfile)
+            try:
+                from ansible.inventory.manager import InventoryManager
+                inv = _inv or InventoryManager(loader=loader, sources=invfile)
+            except ImportError:
+                var_manager = VariableManager()
+                inv = _inv or ansible.inventory.Inventory(loader=loader,
+                                                          variable_manager=var_manager,
+                                                          host_list=invfile)
             _inv = inv
         else:
             inv = _inv or ansible.inventory.Inventory(invfile)
