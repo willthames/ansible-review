@@ -61,7 +61,7 @@ def same_variable_defined_in_competing_groups(candidate, options):
         else:
             inv = _inv or ansible.inventory.Inventory(invfile)
             _inv = inv
-    except AnsibleError, e:
+    except AnsibleError as e:
         result.errors = [Error(None, "Inventory is broken: %s" % e.message)]
         return result
 
