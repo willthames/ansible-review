@@ -18,7 +18,7 @@ export PATH=$PATH:`pwd`/ansible-review/bin
 ## Fedora/RHEL
 
 ansible-review can be found: under standard Fedora repos, or under [EPEL](http://fedoraproject.org/wiki/EPEL#How_can_I_use_these_extra_packages.3F).
-To install ansible-review, use yum or dnf accordignly.
+To install ansible-review, use yum or dnf accordingly.
 
 ```
 yum install ansible-review
@@ -56,7 +56,7 @@ files, python code (modules, plugins) and playbooks.
   - per-role repository
   - roles with sub-roles
   - per-playbook repository
-* It should work with roles files and with local roles.
+* It should work with roles requirement files and with local roles
 
 ## Typical approaches
 
