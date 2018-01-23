@@ -129,7 +129,12 @@ standards = [
 
 When you add new standards, you should increment the version of your standards.
 Your playbooks and roles should declare what version of standards you are
-using, otherwise ansible-review assumes you're using the latest.
+using, otherwise ansible-review assumes you're using the latest. The declaration
+is done by adding standards version as first line in the file. e.g.
+
+```
+# Standards: 1.2
+```
 
 To add standards that are advisory, don't set the version. These will cause
 a message to be displayed but won't constitute a failure.
