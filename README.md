@@ -15,6 +15,14 @@ export PYTHONPATH=$PYTHONPATH:`pwd`/ansible-review/lib
 export PATH=$PATH:`pwd`/ansible-review/bin
 ```
 
+## Fedora/RHEL
+
+ansible-review can be found: under standard Fedora repos, or under [EPEL](http://fedoraproject.org/wiki/EPEL#How_can_I_use_these_extra_packages.3F).
+To install ansible-review, use yum or dnf accordingly.
+
+```
+yum install ansible-review
+```
 
 # Usage
 
@@ -23,7 +31,7 @@ ansible-review FILES
 ```
 
 Where FILES is a space delimited list of files to review.
-ansible-review is _not_ recursive and won't descend 
+ansible-review is _not_ recursive and won't descend
 into child folders; it just processes the list of files you give it.
 
 Passing a folder in with the list of files will elicit a warning:
@@ -48,7 +56,7 @@ files, python code (modules, plugins) and playbooks.
   - per-role repository
   - roles with sub-roles
   - per-playbook repository
-* It should work with rolesfiles and with local roles.
+* It should work with roles requirement files and with local roles
 
 ## Typical approaches
 
@@ -60,7 +68,7 @@ files, python code (modules, plugins) and playbooks.
 * `git diff branch_to_compare | ansible-review` will
   review only the changes between the branches and
   surrounding context.
-  
+
 ### Without git
 
 * `find . -type f | xargs ansible-review` will review
@@ -93,7 +101,7 @@ standards = /path/to/your/standards/rules
 ```
 
 The standards directory can be overridden with the `-d` argument,
-and the lint rules directory can be overriden with the `-r` argument.
+and the lint rules directory can be overwritten with the `-r` argument.
 
 
 ## Standards file
@@ -137,7 +145,7 @@ to review your entire code base for deprecated bare words), you can use the
 git ls-files | xargs ansible-review -s "bare words are deprecated for with_items"
 ```
 
-you can see the name of the standards being checked for each different file by running
+You can see the name of the standards being checked for each different file by running
 `ansible-review` with the `-v` option.
 
 
@@ -166,6 +174,6 @@ Line numbers are important as `ansible-review` can review just ranges of files
 to only review changes (e.g. through piping the output of `git diff` to
 `ansible-review`)
 
-The ansiblelint check is ready out of the box, and just takes a list of
+The ansible-lint check is ready out of the box, and just takes a list of
 IDs or tags to check. You can point to your own ansible-lint rules
 using the configuration file or `-d /path/to/ansible/lint/rules`
