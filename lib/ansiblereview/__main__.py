@@ -32,8 +32,12 @@ def get_candidates_from_diff(difftext):
 
 
 def main():
-    config_dir = AppDirs("ansible-review", "com.github.willthames").user_config_dir
-    default_config_file = os.path.join(config_dir, "config.ini")
+    local_config = os.path.join(os.getcwd(), '.ansible-review', 'config.ini')
+    if os.path.isfile(local_config):
+        default_config_file = local_config
+    else:
+        config_dir = AppDirs("ansible-review", "com.github.willthames").user_config_dir
+        default_config_file = os.path.join(config_dir, "config.ini")
 
     parser = optparse.OptionParser("%prog playbook_file|role_file|inventory_file",
                                    version="%prog " + __version__)
