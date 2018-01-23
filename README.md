@@ -139,6 +139,9 @@ is done by adding standards version as first line in the file. e.g.
 To add standards that are advisory, don't set the version. These will cause
 a message to be displayed but won't constitute a failure.
 
+When a standard version is higher than declared version, a message will be
+displayed 'WARN: Future standard' and won't constitute a failure.
+
 An example standards file is available at
 [lib/ansiblereview/examples/standards.py](lib/ansiblereview/examples/standards.py)
 
