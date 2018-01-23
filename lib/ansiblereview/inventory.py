@@ -5,10 +5,14 @@ import yaml
 
 try:
     import ansible.parsing.dataloader
-    import ansible.vars
+    from ansible.vars.manager import VariableManager
     ANSIBLE = 2
 except ImportError:
-    ANSIBLE = 1
+    try:
+        from ansible.vars import VariableManager
+        ANSIBLE = 2
+    except ImportError:
+        ANSIBLE = 1
 
 
 def no_vars_in_host_file(candidate, options):
@@ -28,7 +32,7 @@ def parse(candidate, options):
     try:
         if ANSIBLE > 1:
             loader = ansible.parsing.dataloader.DataLoader()
-            var_manager = ansible.vars.VariableManager()
+            var_manager = VariableManager()
             ansible.inventory.Inventory(loader=loader, variable_manager=var_manager,
                                         host_list=candidate.path)
         else:

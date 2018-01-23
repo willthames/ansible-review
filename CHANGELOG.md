@@ -1,3 +1,6 @@
+### 0.13.5
+* Update VariableManager imports for ansible 2.4
+
 ### 0.13.4
 * Import module_loader from ansible.plugins.loader for ansible2.4
 
