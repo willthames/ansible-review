@@ -94,5 +94,5 @@ def main():
                 info("Reviewing all of %s" % candidate, options)
             errors = errors + candidate.review(options, lines)
         else:
-            warn("Couldn't classify file %s" % filename, options)
+            info("Couldn't classify file %s" % filename, options)
     return errors
