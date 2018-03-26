@@ -1,0 +1,11 @@
+---
+
+# For use with pre-commit.
+# See usage instructions at http://pre-commit.com
+
+- id: ansible-review
+  name: Ansible-review
+  description: This hook runs ansible-review.
+  entry: ansible-review
+  language: python
+  files: \.(yaml|yml)$
