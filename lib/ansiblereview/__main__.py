@@ -17,7 +17,7 @@ def get_candidates_from_diff(difftext):
         import unidiff
     except ImportError as e:
         raise SystemExit("Could not import unidiff library: %s", e.message)
-    patch = unidiff.PatchSet(sys.stdin)
+    patch = unidiff.PatchSet(difftext, encoding='utf-8')
 
     candidates = []
     for patchedfile in [patchfile for patchfile in
