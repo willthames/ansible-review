@@ -43,6 +43,8 @@ def main():
                       help="Location of standards rules")
     parser.add_option('-r', dest='lintdir',
                       help="Location of additional lint rules")
+    parser.add_option('--max-line-length', dest='maxlinelength',
+                      help="Flake8 max line length")
     parser.add_option('-q', dest='log_level', action="store_const", default=logging.WARN,
                       const=logging.ERROR, help="Only output errors")
     parser.add_option('-s', dest='standards_filter', action='append',
@@ -55,6 +57,7 @@ def main():
 
     # Merge CLI options with config options. CLI options override config options.
     for key, value in settings.__dict__.iteritems():
+        #print("Setting " + str(key) + " = " + str(value))
         if not getattr(options, key):
             setattr(options, key, getattr(settings, key))
 
