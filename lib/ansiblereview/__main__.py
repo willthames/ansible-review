@@ -57,7 +57,6 @@ def main():
 
     # Merge CLI options with config options. CLI options override config options.
     for key, value in settings.__dict__.iteritems():
-        #print("Setting " + str(key) + " = " + str(value))
         if not getattr(options, key):
             setattr(options, key, getattr(settings, key))
 
