@@ -41,5 +41,5 @@ class TestUtils(unittest.TestCase):
     def test_code_passes_flake8(self):
         # run flake8 against this source file
         candidate = Code(__file__.replace('.pyc', '.py'))
-        result = code.code_passes_flake8(candidate, None)
+        result = code.code_passes_flake8(candidate, '100', None)
         self.assertEqual(len(result.errors), 0)
