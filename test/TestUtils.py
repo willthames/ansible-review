@@ -24,6 +24,8 @@ import unittest
 from ansiblereview import Playbook, Task, Code
 import ansiblereview.code as code
 
+class options(object):
+    maxlinelength = '79'
 
 class TestUtils(unittest.TestCase):
     def setUp(self):
