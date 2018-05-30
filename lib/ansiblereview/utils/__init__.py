@@ -147,18 +147,34 @@ class Settings(object):
         self.rulesdir = values.get('rulesdir')
         self.lintdir = values.get('lintdir')
         self.configfile = values.get('configfile')
+        self.maxlinelength = values.get('maxlinelength')
 
 
 def read_config(config_file):
-    config = configparser.RawConfigParser({'standards': None, 'lint': None})
+    config = configparser.RawConfigParser({
+        'standards': None,
+        'lint': None,
+        'max-line-length': '79'
+        })
     config.read(config_file)
+
+    if config.has_section('flake8'):
+        max_line_length = config.get('flake8', 'max-line-length')
 
     if config.has_section('rules'):
         return Settings(dict(rulesdir=config.get('rules', 'standards'),
                              lintdir=config.get('rules', 'lint'),
+                             maxlinelength=max_line_length,
                              configfile=config_file))
     else:
-        return Settings(dict(rulesdir=None, lintdir=None, configfile=config_file))
+        return Settings(
+                dict(
+                    rulesdir=None,
+                    lintdir=None,
+                    maxlinelength=max_line_length,
+                    configfile=config_file
+                    )
+                )
 
 
 class ExecuteResult(object):
