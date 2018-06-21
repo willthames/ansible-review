@@ -1,3 +1,7 @@
+### 0.13.6
+* Python 3 bug fixes
+* Use unicode for git diff
+
 ### 0.13.5
 * Update VariableManager imports for ansible 2.4
 
