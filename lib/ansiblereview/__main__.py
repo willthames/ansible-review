@@ -54,7 +54,7 @@ def main():
     settings = read_config(options.configfile)
 
     # Merge CLI options with config options. CLI options override config options.
-    for key, value in settings.__dict__.iteritems():
+    for key, value in settings.__dict__.items():
         if not getattr(options, key):
             setattr(options, key, getattr(settings, key))
 
