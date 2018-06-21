@@ -51,7 +51,7 @@ def lines_ranges(lines_spec):
     result = []
     for interval in lines_spec.split(","):
         (start, end) = interval.split("-")
-        result.append(xrange(int(start), int(end)+1))
+        result.append(range(int(start), int(end)+1))
     return result
 
 

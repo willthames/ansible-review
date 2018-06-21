@@ -12,7 +12,7 @@ matrix:
   include:
     - language: python
       python: "2.7"
-      env: TOXENV=flake8
+      env: TOXENV=py27-flake8
 
     - language: python
       python: "2.7"
@@ -40,23 +40,31 @@ matrix:
 
     - language: python
       python: "2.7"
+      env: TOXENV=py27-ansible25
+
+    - language: python
+      python: "2.7"
       env: TOXENV=py27-ansibledevel
 
     - language: python
-      python: "3.5"
-      env: TOXENV=py35-ansible22
+      python: "3.6"
+      env: TOXENV=py36-ansible22
 
     - language: python
-      python: "3.5"
-      env: TOXENV=py35-ansible23
+      python: "3.6"
+      env: TOXENV=py36-ansible23
 
     - language: python
-      python: "3.5"
-      env: TOXENV=py35-ansible24
+      python: "3.6"
+      env: TOXENV=py36-ansible24
 
     - language: python
-      python: "3.5"
-      env: TOXENV=py35-ansibledevel
+      python: "3.6"
+      env: TOXENV=py36-ansible25
+
+    - language: python
+      python: "3.6"
+      env: TOXENV=py36-ansibledevel
 
     - language: python
       python: "3.6"
