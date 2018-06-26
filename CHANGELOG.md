@@ -1,3 +1,6 @@
+### 0.13.7
+* Add required file for test to zip file
+
 ### 0.13.6
 * Python 3 bug fixes
 * Use unicode for git diff
