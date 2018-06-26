@@ -1,4 +1,4 @@
 include README.md
 include LICENSE
-recursive-include test *.py *.yml hosts
+recursive-include test *.py *.yml *.txt hosts
 recursive-include lib/ansiblereview/examples *.py
