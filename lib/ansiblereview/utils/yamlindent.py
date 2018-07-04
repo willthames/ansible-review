@@ -32,9 +32,12 @@ BAD:
 
 
 from __future__ import print_function
+
 import codecs
+import os
 import re
 import sys
+
 from ansiblereview import Result, Error, utils
 
 
@@ -70,7 +73,7 @@ if __name__ == '__main__':
     args = sys.argv[1:] or [sys.stdin]
     rc = 0
     for arg in args:
-        result = yamlreview(arg, utils.Settings())
+        result = yamlreview(arg, utils.Settings(utils.read_config()))
         for error in result.errors():
             print("ERROR: %s:%s: %s" % (arg, error.lineno, error.message), file=sys.stderr)
             rc = 1

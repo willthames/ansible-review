@@ -7,10 +7,9 @@ import os
 import sys
 from ansiblereview.version import __version__
 from ansiblereview import classify
-from ansiblereview.utils import info, warn, read_config
-from appdirs import AppDirs
+from ansiblereview.utils import read_config, get_default_config
 from pkg_resources import resource_filename
-
+from ansiblereview.display import load_display_handler
 
 def get_candidates_from_diff(difftext):
     try:
@@ -32,9 +31,7 @@ def get_candidates_from_diff(difftext):
 
 
 def main():
-    config_dir = AppDirs("ansible-review", "com.github.willthames").user_config_dir
-    default_config_file = os.path.join(config_dir, "config.ini")
-
+    default_config_file = get_default_config()
     parser = optparse.OptionParser("%prog playbook_file|role_file|inventory_file",
                                    version="%prog " + __version__)
     parser.add_option('-c', dest='configfile', default=default_config_file,
@@ -49,27 +46,29 @@ def main():
                       help="limit standards to specific names")
     parser.add_option('-v', dest='log_level', action="store_const", default=logging.WARN,
                       const=logging.INFO, help="Show more verbose output")
-
+    
     options, args = parser.parse_args(sys.argv[1:])
     settings = read_config(options.configfile)
 
+    display = load_display_handler('default', __name__, options.log_level)
+    
     # Merge CLI options with config options. CLI options override config options.
-    for key, value in settings.__dict__.items():
+    for key, _ in settings.__dict__.items():
         if not getattr(options, key):
             setattr(options, key, getattr(settings, key))
 
     if os.path.exists(options.configfile):
-        info("Using configuration file: %s" % options.configfile, options)
+        display.info("Using configuration file: %s" % options.configfile, options)
     else:
-        warn("No configuration file found at %s" % options.configfile, options, file=sys.stderr)
+        display.warn("No configuration file found at %s" % options.configfile)
         if not options.rulesdir:
             rules_dir = os.path.join(resource_filename('ansiblereview', 'examples'))
-            warn("Using example standards found at %s" % rules_dir, options, file=sys.stderr)
+            display.warn("Using example standards found at %s" % rules_dir)
             options.rulesdir = rules_dir
         if not options.lintdir:
             lint_dir = os.path.join(options.rulesdir, 'lint-rules')
             if os.path.exists(lint_dir):
-                warn("Using example lint-rules found at %s" % lint_dir, options, file=sys.stderr)
+                display.warn("Using example lint-rules found at %s" % lint_dir)
                 options.lintdir = lint_dir
 
     if len(args) == 0:
@@ -86,13 +85,13 @@ def main():
         candidate = classify(filename)
         if candidate:
             if candidate.binary:
-                warn("Not reviewing binary file %s" % filename, options)
+                display.warn("Not reviewing binary file %s" % filename)
                 continue
             if lines:
-                info("Reviewing %s lines %s" % (candidate, lines), options)
+                display.info("Reviewing %s lines %s" % (candidate, lines))
             else:
-                info("Reviewing all of %s" % candidate, options)
-            errors = errors + candidate.review(options, lines)
+                display.info("Reviewing all of %s" % candidate)
+            errors = errors + candidate.review(options, lines, display=display)
         else:
-            info("Couldn't classify file %s" % filename, options)
+            display.info("Couldn't classify file %s" % filename)
     return errors

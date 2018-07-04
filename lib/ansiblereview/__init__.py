@@ -72,8 +72,8 @@ class Candidate(object):
         self.filetype = type(self).__name__.lower()
         self.expected_version = True
 
-    def review(self, settings, lines=None):
-        return utils.review(self, settings, lines)
+    def review(self, settings, lines=None, display=None):
+        return utils.review(self, settings, lines, display=display)
 
     def __repr__(self):
         return "%s (%s)" % (type(self).__name__, self.path)
