@@ -50,14 +50,14 @@ def read_standards(settings):
     try:
         standards = importlib.import_module('standards')
     except ImportError as e:
-        raise SystemExit("Could not import standards from directory %s: %s" % 
+        raise SystemExit("Could not import standards from directory %s: %s" %
                          (settings.rulesdir, str(e)))
     return standards
 
 
 def review(candidate, settings, lines=None, display=None):
     errors = 0
-    
+
     if not display:
         display = load_display_handler('default', __name__, logging.ERROR)
 
@@ -86,16 +86,18 @@ def review(candidate, settings, lines=None, display=None):
         if candidate.expected_version:
             if isinstance(candidate, ansiblereview.RoleFile):
                 display.warn("%s %s is in a role that contains a meta/main.yml without a declared "
-                     "standards version. "
-                     "Using latest standards version %s" %
-                     (type(candidate).__name__, candidate.path, candidate.version))
+                             "standards version. Using latest standards version %s" %
+                             (type(candidate).__name__, candidate.path, candidate.version),
+                             tag="standards_version")
             else:
                 display.warn("%s %s does not present standards version. "
-                     "Using latest standards version %s" %
-                     (type(candidate).__name__, candidate.path, candidate.version))
+                             "Using latest standards version %s" %
+                             (type(candidate).__name__, candidate.path, candidate.version),
+                             tag="standards_version")
 
     display.info("%s %s declares standards version %s" %
-         (type(candidate).__name__, candidate.path, candidate.version))
+                 (type(candidate).__name__, candidate.path, candidate.version),
+                 tag="standards_version")
 
     for standard in standards.standards:
         if type(candidate).__name__.lower() not in standard.types:
@@ -108,21 +110,27 @@ def review(candidate, settings, lines=None, display=None):
                     is_line_in_ranges(err.lineno, lines_ranges(lines))]:
             if not standard.version:
                 display.warn("Best practice \"%s\" not met:\n%s:%s" %
-                     (standard.name, candidate.path, err))
+                             (standard.name, candidate.path, err),
+                             tag="review_error")
             elif LooseVersion(standard.version) > LooseVersion(candidate.version):
                 display.warn("Future standard \"%s\" not met:\n%s:%s" %
-                     (standard.name, candidate.path, err))
+                             (standard.name, candidate.path, err),
+                             tag="review_error")
             else:
                 display.error("Standard \"%s\" not met:\n%s:%s" %
-                      (standard.name, candidate.path, err))
+                              (standard.name, candidate.path, err),
+                              tag="review_error")
                 errors = errors + 1
         if not result.errors:
             if not standard.version:
-                display.info("Best practice \"%s\" met" % standard.name)
+                display.info("Best practice \"%s\" met" % standard.name,
+                             tag="standard_met")
             elif LooseVersion(standard.version) > LooseVersion(candidate.version):
-                display.info("Future standard \"%s\" met" % standard.name)
+                display.info("Future standard \"%s\" met" % standard.name,
+                             tag="standard_met")
             else:
-                display.info("Standard \"%s\" met" % standard.name)
+                display.info("Standard \"%s\" met" % standard.name,
+                             tag="standard_met")
 
     return errors
 
@@ -147,10 +155,12 @@ def read_config(config_file=None):
     else:
         return Settings(dict(rulesdir=None, lintdir=None, configfile=config_file))
 
+
 def get_default_config():
     config_dir = AppDirs("ansible-review", "com.github.willthames").user_config_dir
     return os.path.join(config_dir, "config.ini")
-    
+
+
 class ExecuteResult(object):
     pass
 

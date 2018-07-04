@@ -9,7 +9,8 @@ from ansiblereview.version import __version__
 from ansiblereview import classify
 from ansiblereview.utils import read_config, get_default_config
 from pkg_resources import resource_filename
-from ansiblereview.display import load_display_handler
+from ansiblereview.display import DISPLAY_NAMES, load_display_handler
+
 
 def get_candidates_from_diff(difftext):
     try:
@@ -43,32 +44,39 @@ def main():
     parser.add_option('-q', dest='log_level', action="store_const", default=logging.WARN,
                       const=logging.ERROR, help="Only output errors")
     parser.add_option('-s', dest='standards_filter', action='append',
-                      help="limit standards to specific names")
+                      help="Limit standards to specific names")
+    parser.add_option('-f', dest='display_name', action="store", choices=DISPLAY_NAMES,
+                      default='default',
+                      help="Set the output format to one of: '%s'" % "', '".join(DISPLAY_NAMES))
     parser.add_option('-v', dest='log_level', action="store_const", default=logging.WARN,
                       const=logging.INFO, help="Show more verbose output")
-    
+
     options, args = parser.parse_args(sys.argv[1:])
     settings = read_config(options.configfile)
 
-    display = load_display_handler('default', __name__, options.log_level)
-    
+    display = load_display_handler(options.display_name, __name__, options.log_level)
+
     # Merge CLI options with config options. CLI options override config options.
     for key, _ in settings.__dict__.items():
         if not getattr(options, key):
             setattr(options, key, getattr(settings, key))
 
     if os.path.exists(options.configfile):
-        display.info("Using configuration file: %s" % options.configfile, options)
+        display.info("Using configuration file: %s" % options.configfile, options,
+                     tag="config")
     else:
-        display.warn("No configuration file found at %s" % options.configfile)
+        display.warn("No configuration file found at %s" % options.configfile,
+                     tag="config")
         if not options.rulesdir:
             rules_dir = os.path.join(resource_filename('ansiblereview', 'examples'))
-            display.warn("Using example standards found at %s" % rules_dir)
+            display.warn("Using example standards found at %s" % rules_dir,
+                         tag="config")
             options.rulesdir = rules_dir
         if not options.lintdir:
             lint_dir = os.path.join(options.rulesdir, 'lint-rules')
             if os.path.exists(lint_dir):
-                display.warn("Using example lint-rules found at %s" % lint_dir)
+                display.warn("Using example lint-rules found at %s" % lint_dir,
+                             tag="config")
                 options.lintdir = lint_dir
 
     if len(args) == 0:

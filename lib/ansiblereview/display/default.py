@@ -7,7 +7,7 @@ try:
 except ImportError:
     from ansible.color import stringc
 
- 
+
 class Display(BaseDisplay):
 
     def get_handler(self):
@@ -18,6 +18,16 @@ class Display(BaseDisplay):
         handler.setFormatter(ColoredFormatter('%(message)s'))
         logger.addHandler(handler)
         return logger
+
+    def info(self, msg, **kwargs):
+        self.logger.info(msg)
+
+    def warn(self, msg, **kwargs):
+        self.logger.warn(msg)
+
+    def error(self, msg, **kwargs):
+        self.logger.error(msg)
+
 
 class ColoredFormatter(logging.Formatter):
     def __init__(self, msg):
