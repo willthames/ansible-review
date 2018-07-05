@@ -62,7 +62,7 @@ def main():
             setattr(options, key, getattr(settings, key))
 
     if os.path.exists(options.configfile):
-        display.info("Using configuration file: %s" % options.configfile, options,
+        display.info("Using configuration file: %s" % options.configfile,
                      tag="config")
     else:
         display.warn("No configuration file found at %s" % options.configfile,
