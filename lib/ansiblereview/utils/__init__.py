@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import copy
 import importlib
 import logging
 import os
@@ -88,16 +89,16 @@ def review(candidate, settings, lines=None, display=None):
                 display.warn("%s %s is in a role that contains a meta/main.yml without a declared "
                              "standards version. Using latest standards version %s" %
                              (type(candidate).__name__, candidate.path, candidate.version),
-                             tag="standards_version")
+                             tag="standards_version", file=candidate.path)
             else:
                 display.warn("%s %s does not present standards version. "
                              "Using latest standards version %s" %
                              (type(candidate).__name__, candidate.path, candidate.version),
-                             tag="standards_version")
+                             tag="standards_version", file=candidate.path)
 
     display.info("%s %s declares standards version %s" %
                  (type(candidate).__name__, candidate.path, candidate.version),
-                 tag="standards_version")
+                 tag="standards_version", file=candidate.path)
 
     for standard in standards.standards:
         if type(candidate).__name__.lower() not in standard.types:
@@ -105,32 +106,39 @@ def review(candidate, settings, lines=None, display=None):
         if settings.standards_filter and standard.name not in settings.standards_filter:
             continue
         result = standard.check(candidate, settings)
+        labels = {'tag': 'review', 'standard': standard.name,
+                  'file': candidate.path, 'passed': True}
         for err in [err for err in result.errors
                     if not err.lineno or
                     is_line_in_ranges(err.lineno, lines_ranges(lines))]:
+
+            err_labels = copy.copy(labels)
+            err_labels['passed'] = False
+            if isinstance(err, ansiblereview.Error):
+                err_labels.update(err.to_dict())
+
             if not standard.version:
                 display.warn("Best practice \"%s\" not met:\n%s:%s" %
-                             (standard.name, candidate.path, err),
-                             tag="review_error")
+                             (standard.name, candidate.path, err), **err_labels)
             elif LooseVersion(standard.version) > LooseVersion(candidate.version):
+                labels['practice'] = 'future'
                 display.warn("Future standard \"%s\" not met:\n%s:%s" %
-                             (standard.name, candidate.path, err),
-                             tag="review_error")
+                             (standard.name, candidate.path, err), **err_labels)
             else:
+                labels['practice'] = 'standard'
                 display.error("Standard \"%s\" not met:\n%s:%s" %
-                              (standard.name, candidate.path, err),
-                              tag="review_error")
+                              (standard.name, candidate.path, err), **err_labels)
                 errors = errors + 1
         if not result.errors:
             if not standard.version:
-                display.info("Best practice \"%s\" met" % standard.name,
-                             tag="standard_met")
+                labels['practice'] = 'best'
+                display.info("Best practice \"%s\" met" % standard.name, **labels)
             elif LooseVersion(standard.version) > LooseVersion(candidate.version):
-                display.info("Future standard \"%s\" met" % standard.name,
-                             tag="standard_met")
+                labels['practice'] = 'future'
+                display.info("Future standard \"%s\" met" % standard.name, **labels)
             else:
-                display.info("Standard \"%s\" met" % standard.name,
-                             tag="standard_met")
+                labels['practice'] = 'standard'
+                display.info("Standard \"%s\" met" % standard.name, **labels)
 
     return errors
 

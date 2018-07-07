@@ -62,7 +62,7 @@ def main():
             setattr(options, key, getattr(settings, key))
 
     if os.path.exists(options.configfile):
-        display.info("Using configuration file: %s" % options.configfile,
+        display.info("Using configuration file: %s" % (options.configfile,),
                      tag="config")
     else:
         display.warn("No configuration file found at %s" % options.configfile,
@@ -93,13 +93,18 @@ def main():
         candidate = classify(filename)
         if candidate:
             if candidate.binary:
-                display.warn("Not reviewing binary file %s" % filename)
+                display.warn("Not reviewing binary file %s" % filename,
+                             tag='skipped', file=filename)
                 continue
             if lines:
-                display.info("Reviewing %s lines %s" % (candidate, lines))
+                display.info("Reviewing %s lines %s" % (candidate, lines),
+                             tag='started', review_type='lines')
             else:
-                display.info("Reviewing all of %s" % candidate)
+                display.info("Reviewing all of %s" % candidate,
+                             tag="started", review_type='file',
+                             file=filename)
             errors = errors + candidate.review(options, lines, display=display)
         else:
-            display.info("Couldn't classify file %s" % filename)
+            display.info("Couldn't classify file %s" % filename,
+                         tag="unclassifed", file=filename)
     return errors

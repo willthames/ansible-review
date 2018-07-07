@@ -37,7 +37,7 @@ import codecs
 import re
 import sys
 
-from ansiblereview import Result, Error, utils
+from ansiblereview import Error, Result, utils
 
 
 def indent_checker(filename):
@@ -56,9 +56,11 @@ def indent_checker(filename):
             if offset > 0 and offset != 2:
                 if match.group('indent').endswith('- '):
                     errors.append(Error(lineno, "lines starting with '- ' should have same "
-                                  "or less indentation than previous line"))
+                                        "or less indentation than previous line",
+                                  error_type='yamlreview'))
                 else:
-                    errors.append(Error(lineno, "indentation should increase by 2 chars"))
+                    errors.append(Error(lineno, "indentation should increase by 2 chars",
+                                  error_type='yamlreview'))
             prev_indent = curr_indent
         return errors
 
