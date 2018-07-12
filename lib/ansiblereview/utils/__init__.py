@@ -167,8 +167,11 @@ class ExecuteResult(object):
 
 def execute(cmd):
     result = ExecuteResult()
+    encoding = 'UTF-8'
+    env = dict(os.environ)
+    env['PYTHONIOENCODING'] = encoding
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT)
-    result.output = proc.communicate()[0]
+                            stderr=subprocess.STDOUT, env=env)
+    result.output = proc.communicate()[0].decode(encoding)
     result.rc = proc.returncode
     return result
