@@ -32,10 +32,12 @@ BAD:
 
 
 from __future__ import print_function
+
 import codecs
 import re
 import sys
-from ansiblereview import Result, Error, utils
+
+from ansiblereview import Error, Result, utils
 
 
 def indent_checker(filename):
@@ -54,9 +56,11 @@ def indent_checker(filename):
             if offset > 0 and offset != 2:
                 if match.group('indent').endswith('- '):
                     errors.append(Error(lineno, "lines starting with '- ' should have same "
-                                  "or less indentation than previous line"))
+                                        "or less indentation than previous line",
+                                  error_type='yamlreview'))
                 else:
-                    errors.append(Error(lineno, "indentation should increase by 2 chars"))
+                    errors.append(Error(lineno, "indentation should increase by 2 chars",
+                                  error_type='yamlreview'))
             prev_indent = curr_indent
         return errors
 
@@ -70,7 +74,7 @@ if __name__ == '__main__':
     args = sys.argv[1:] or [sys.stdin]
     rc = 0
     for arg in args:
-        result = yamlreview(arg, utils.Settings())
+        result = yamlreview(arg, utils.Settings(utils.read_config()))
         for error in result.errors():
             print("ERROR: %s:%s: %s" % (arg, error.lineno, error.message), file=sys.stderr)
             rc = 1

@@ -20,7 +20,7 @@ setup(
     packages=find_packages('lib'),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['ansible-lint>=3.4.1', 'pyyaml', 'appdirs', 'unidiff', 'flake8'],
+    install_requires=['ansible-lint>=3.4.1', 'pyyaml', 'appdirs', 'unidiff', 'flake8', 'structlog'],
     entry_points={
         'console_scripts': [
             'ansible-review = ansiblereview.__main__:main'

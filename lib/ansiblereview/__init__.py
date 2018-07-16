@@ -1,8 +1,11 @@
-from ansiblelint import default_rulesdir, RulesCollection
 import codecs
-from functools import partial
-import re
 import os
+import re
+
+from functools import partial
+from six import iteritems
+
+from ansiblelint import default_rulesdir, RulesCollection
 from ansiblereview import utils
 
 try:
@@ -40,15 +43,27 @@ class Standard(object):
 
 
 class Error(object):
-    def __init__(self, lineno, message):
+    def __init__(self, lineno, message, error_type=None, **kwargs):
         self.lineno = lineno
         self.message = message
+        self.error_type = error_type
+        self.kwargs = kwargs
+        for (key, value) in iteritems(kwargs):
+            setattr(self, key, value)
 
     def __repr__(self):
         if self.lineno:
             return "%s: %s" % (self.lineno, self.message)
         else:
             return self.message
+
+    def to_dict(self):
+        result = dict(lineno=self.lineno, message=self.message)
+        if self.error_type:
+            result['error_type'] = self.error_type
+        for (key, value) in iteritems(self.kwargs):
+            result[key] = value
+        return result
 
 
 class Result(object):
@@ -72,8 +87,8 @@ class Candidate(object):
         self.filetype = type(self).__name__.lower()
         self.expected_version = True
 
-    def review(self, settings, lines=None):
-        return utils.review(self, settings, lines)
+    def review(self, settings, lines=None, display=None):
+        return utils.review(self, settings, lines, display=display)
 
     def __repr__(self):
         return "%s (%s)" % (type(self).__name__, self.path)
@@ -218,11 +233,12 @@ def ansiblelint(rulename, candidate, settings):
     rules.extend(RulesCollection.create_from_directory(default_rulesdir))
     if settings.lintdir:
         rules.extend(RulesCollection.create_from_directory(settings.lintdir))
-
     fileinfo = dict(path=candidate.path, type=candidate.filetype)
     matches = rules.run(fileinfo, rulename.split(','))
-    result.errors = [Error(match.linenumber, "[%s] %s" % (match.rule.id, match.message))
-                     for match in matches]
+    result.errors = [
+        Error(match.linenumber, "[%s] %s" % (match.rule.id, match.message),
+              'ansiblelint', error_rule=match.rule.id, error_msg=match.message)
+        for match in matches]
     return result
 
 

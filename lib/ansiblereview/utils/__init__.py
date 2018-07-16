@@ -1,43 +1,27 @@
 from __future__ import print_function
 
-try:
-    from ansible.utils.color import stringc
-except ImportError:
-    from ansible.color import stringc
-import ansiblereview
-import ansible
-from ansiblereview.version import __version__
-import ansiblelint.version
-from distutils.version import LooseVersion
+import copy
 import importlib
 import logging
 import os
 import subprocess
 import sys
 
+from appdirs import AppDirs
+from distutils.version import LooseVersion
+
+import ansible
+import ansiblereview
+from ansiblereview.version import __version__
+from ansiblereview.display import load_display_handler
+
+import ansiblelint.version
+
+
 try:
     import ConfigParser as configparser
 except ImportError:
     import configparser
-
-
-def abort(message, file=sys.stderr):
-    print(stringc("FATAL: %s" % message, 'red'), file=file)
-    sys.exit(1)
-
-
-def error(message, file=sys.stderr):
-    print(stringc("ERROR: %s" % message, 'red'), file=file)
-
-
-def warn(message, settings, file=sys.stdout):
-    if settings.log_level <= logging.WARNING:
-        print(stringc("WARN: %s" % message, 'yellow'), file=file)
-
-
-def info(message, settings, file=sys.stdout):
-    if settings.log_level <= logging.INFO:
-        print(stringc("INFO: %s" % message, 'green'), file=file)
 
 
 def standards_latest(standards):
@@ -61,17 +45,22 @@ def is_line_in_ranges(line, ranges):
 
 def read_standards(settings):
     if not settings.rulesdir:
-        abort("Standards directory is not set on command line or in configuration file - aborting")
+        raise SystemExit("Standards directory is not set on command line or in configuration "
+                         "file - aborting")
     sys.path.append(os.path.abspath(os.path.expanduser(settings.rulesdir)))
     try:
         standards = importlib.import_module('standards')
     except ImportError as e:
-        abort("Could not import standards from directory %s: %s" % (settings.rulesdir, str(e)))
+        raise SystemExit("Could not import standards from directory %s: %s" %
+                         (settings.rulesdir, str(e)))
     return standards
 
 
-def review(candidate, settings, lines=None):
+def review(candidate, settings, lines=None, display=None):
     errors = 0
+
+    if not display:
+        display = load_display_handler('default', __name__, logging.ERROR)
 
     standards = read_standards(settings)
     if getattr(standards, 'ansible_min_version', None) and \
@@ -97,20 +86,19 @@ def review(candidate, settings, lines=None):
         candidate.version = standards_latest(standards.standards)
         if candidate.expected_version:
             if isinstance(candidate, ansiblereview.RoleFile):
-                warn("%s %s is in a role that contains a meta/main.yml without a declared "
-                     "standards version. "
-                     "Using latest standards version %s" %
-                     (type(candidate).__name__, candidate.path, candidate.version),
-                     settings)
+                display.warn("%s %s is in a role that contains a meta/main.yml without a declared "
+                             "standards version. Using latest standards version %s" %
+                             (type(candidate).__name__, candidate.path, candidate.version),
+                             tag="standards_version", file=candidate.path)
             else:
-                warn("%s %s does not present standards version. "
-                     "Using latest standards version %s" %
-                     (type(candidate).__name__, candidate.path, candidate.version),
-                     settings)
+                display.warn("%s %s does not present standards version. "
+                             "Using latest standards version %s" %
+                             (type(candidate).__name__, candidate.path, candidate.version),
+                             tag="standards_version", file=candidate.path)
 
-    info("%s %s declares standards version %s" %
-         (type(candidate).__name__, candidate.path, candidate.version),
-         settings)
+    display.info("%s %s declares standards version %s" %
+                 (type(candidate).__name__, candidate.path, candidate.version),
+                 tag="standards_version", file=candidate.path)
 
     for standard in standards.standards:
         if type(candidate).__name__.lower() not in standard.types:
@@ -118,26 +106,39 @@ def review(candidate, settings, lines=None):
         if settings.standards_filter and standard.name not in settings.standards_filter:
             continue
         result = standard.check(candidate, settings)
+        labels = {'tag': 'review', 'standard': standard.name,
+                  'file': candidate.path, 'passed': True}
         for err in [err for err in result.errors
                     if not err.lineno or
                     is_line_in_ranges(err.lineno, lines_ranges(lines))]:
+
+            err_labels = copy.copy(labels)
+            err_labels['passed'] = False
+            if isinstance(err, ansiblereview.Error):
+                err_labels.update(err.to_dict())
+
             if not standard.version:
-                warn("Best practice \"%s\" not met:\n%s:%s" %
-                     (standard.name, candidate.path, err), settings)
+                display.warn("Best practice \"%s\" not met:\n%s:%s" %
+                             (standard.name, candidate.path, err), **err_labels)
             elif LooseVersion(standard.version) > LooseVersion(candidate.version):
-                warn("Future standard \"%s\" not met:\n%s:%s" %
-                     (standard.name, candidate.path, err), settings)
+                labels['practice'] = 'future'
+                display.warn("Future standard \"%s\" not met:\n%s:%s" %
+                             (standard.name, candidate.path, err), **err_labels)
             else:
-                error("Standard \"%s\" not met:\n%s:%s" %
-                      (standard.name, candidate.path, err))
+                labels['practice'] = 'standard'
+                display.error("Standard \"%s\" not met:\n%s:%s" %
+                              (standard.name, candidate.path, err), **err_labels)
                 errors = errors + 1
         if not result.errors:
             if not standard.version:
-                info("Best practice \"%s\" met" % standard.name, settings)
+                labels['practice'] = 'best'
+                display.info("Best practice \"%s\" met" % standard.name, **labels)
             elif LooseVersion(standard.version) > LooseVersion(candidate.version):
-                info("Future standard \"%s\" met" % standard.name, settings)
+                labels['practice'] = 'future'
+                display.info("Future standard \"%s\" met" % standard.name, **labels)
             else:
-                info("Standard \"%s\" met" % standard.name, settings)
+                labels['practice'] = 'standard'
+                display.info("Standard \"%s\" met" % standard.name, **labels)
 
     return errors
 
@@ -149,7 +150,9 @@ class Settings(object):
         self.configfile = values.get('configfile')
 
 
-def read_config(config_file):
+def read_config(config_file=None):
+    if not config_file:
+        config_file = get_default_config()
     config = configparser.RawConfigParser({'standards': None, 'lint': None})
     config.read(config_file)
 
@@ -159,6 +162,11 @@ def read_config(config_file):
                              configfile=config_file))
     else:
         return Settings(dict(rulesdir=None, lintdir=None, configfile=config_file))
+
+
+def get_default_config():
+    config_dir = AppDirs("ansible-review", "com.github.willthames").user_config_dir
+    return os.path.join(config_dir, "config.ini")
 
 
 class ExecuteResult(object):
