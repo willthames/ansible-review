@@ -9,7 +9,7 @@ class TestDiffEncoding(unittest.TestCase):
     
     def test_diff_encoding(self):
         difflines = []
-        with io.open(os.path.join(self.directory, 'diff.txt'), 'r') as f:
+        with io.open(os.path.join(self.directory, 'diff.txt'), 'r', encoding='utf-8') as f:
             for line in f.readlines():
                 encodedline = line.encode("utf-8")
                 difflines.append(encodedline)
