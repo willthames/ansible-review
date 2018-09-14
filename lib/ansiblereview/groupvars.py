@@ -21,6 +21,11 @@ _inv = None
 
 
 def get_group_vars(group, inventory):
+    try:
+        from ansible.inventory.helpers import get_group_vars
+        return get_group_vars(inventory.groups.values())
+    except ImportError:
+        pass
     # http://stackoverflow.com/a/197053
     vars = inspect.getargspec(inventory.get_group_vars)
     if 'return_results' in vars[0]:
