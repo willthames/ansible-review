@@ -1,3 +1,8 @@
+### 0.13.8
+
+* Fix missing `get_group_vars`
+* Fix encoding issues in tests
+
 ### 0.13.7
 * Add required file for test to zip file
 
