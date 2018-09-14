@@ -73,7 +73,10 @@ def same_variable_defined_in_competing_groups(candidate, options):
         result.errors = [Error(None, "Inventory is broken: %s" % e.message)]
         return result
 
-    group = inv.get_group(os.path.basename(candidate.path))
+    if hasattr(inv, 'groups'):
+        group = inv.groups.get(os.path.basename(candidate.path))
+    else:
+        group = inv.get_group(os.path.basename(candidate.path))
     if not group:
         # group file exists in group_vars but no related group
         # in inventory directory
