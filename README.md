@@ -185,3 +185,19 @@ to only review changes (e.g. through piping the output of `git diff` to
 The ansible-lint check is ready out of the box, and just takes a list of
 IDs or tags to check. You can point to your own ansible-lint rules
 using the configuration file or `-d /path/to/ansible/lint/rules`
+
+# Pre-commit
+
+To use ansible-review with [pre-commit](https://pre-commit.com/), just
+add the following to your local repo's `.pre-commit-config.yaml` file.
+Make sure to change `sha:` to be either a git commit SHA or tag of
+ansible-review containing `hooks.yaml`.
+
+```yaml
+- repo: https://github.com/willthames/ansible-review
+  sha: FIXME_WITH_HASH_AFTER_MERGE
+  hooks:
+    - id: ansible-review
+```
+
+Notice, that this is currently experimental.
