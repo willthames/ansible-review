@@ -1,8 +1,8 @@
 from ansiblereview import Error, Result, utils
 
 
-def code_passes_flake8(candidate, options):
-    result = utils.execute(["flake8", candidate.path])
+def code_passes_pycodestyle(candidate, options):
+    result = utils.execute(["pycodestyle", candidate.path])
     errors = []
     if result.rc:
         for line in result.output.strip().split('\n'):

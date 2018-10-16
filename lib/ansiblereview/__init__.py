@@ -226,7 +226,7 @@ def ansiblelint(rulename, candidate, settings):
     return result
 
 
-def find_version(filename, version_regex="^# Standards: ([0-9]+\.[0-9]+)"):
+def find_version(filename, version_regex=r"^# Standards: ([0-9]+\.[0-9]+)"):
     version_re = re.compile(version_regex)
     with codecs.open(filename, mode='rb', encoding='utf-8') as f:
         for line in f:

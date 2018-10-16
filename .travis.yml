@@ -12,7 +12,7 @@ matrix:
   include:
     - language: python
       python: "2.7"
-      env: TOXENV=py27-flake8
+      env: TOXENV=py27-lint
 
     - language: python
       python: "2.7"
@@ -68,10 +68,12 @@ matrix:
 
     - language: python
       python: "3.6"
-      env: TOXENV=py36-flake8
+      env: TOXENV=py36-lint
 
 install:
   - pip install -r test-deps.txt
+  # fail if installation introduced conflicts (pip check)
+  - pip check
 
 script:
 - tox -v

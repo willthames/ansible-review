@@ -38,8 +38,8 @@ class TestUtils(unittest.TestCase):
                                       'tasks', 'main.yml'))
         self.assertEqual(candidate.version, '0.2')
 
-    def test_code_passes_flake8(self):
-        # run flake8 against this source file
+    def test_code_passes_pycodestyle(self):
+        # run pycodestyle against this source file
         candidate = Code(__file__.replace('.pyc', '.py'))
-        result = code.code_passes_flake8(candidate, None)
+        result = code.code_passes_pycodestyle(candidate, None)
         self.assertEqual(len(result.errors), 0)

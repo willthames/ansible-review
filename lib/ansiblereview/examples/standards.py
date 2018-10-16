@@ -5,7 +5,7 @@ import yaml
 from ansiblereview import Result, Error, Standard, lintcheck
 from ansiblereview.utils.yamlindent import yamlreview
 from ansiblereview.inventory import parse, no_vars_in_host_file
-from ansiblereview.code import code_passes_flake8
+from ansiblereview.code import code_passes_pycodestyle
 from ansiblereview.vars import repeated_vars
 from ansiblereview.playbook import repeated_names
 from ansiblereview.rolesfile import yamlrolesfile
@@ -118,9 +118,9 @@ inventory_hostfiles_should_not_contain_vars = Standard(dict(
     types=["inventory"]
 ))
 
-code_should_meet_flake8 = Standard(dict(
-    name="Python code should pass flake8",
-    check=code_passes_flake8,
+code_should_meet_pycodestyle = Standard(dict(
+    name="Python code should pass pycodestyle",
+    check=code_passes_pycodestyle,
     types=["code"]
 ))
 
@@ -294,7 +294,7 @@ standards = [
     use_shell_only_when_necessary,
     inventory_must_parse,
     inventory_hostfiles_should_not_contain_vars,
-    code_should_meet_flake8,
+    code_should_meet_pycodestyle,
     tasks_are_named,
     tasks_are_uniquely_named,
     vars_are_not_repeated_in_same_file,

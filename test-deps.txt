@@ -1,4 +1,4 @@
-flake8
+pycodestyle
 nose
 pep8-naming
 tox
