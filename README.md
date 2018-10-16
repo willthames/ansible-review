@@ -188,17 +188,16 @@ using the configuration file or `-d /path/to/ansible/lint/rules`
 
 # Pre-commit
 
-To use ansible-review with [pre-commit](http://pre-commit.com/), just
+To use ansible-review with [pre-commit](https://pre-commit.com/), just
 add the following to your local repo's `.pre-commit-config.yaml` file.
-Make sure to change `sha:` to be either a git commit sha or tag of
+Make sure to change `sha:` to be either a git commit SHA or tag of
 ansible-review containing `hooks.yaml`.
 
 ```yaml
-- repo: https://github.com/nvtkaszpir/ansible-review
-  sha: FIXME
+- repo: https://github.com/willthames/ansible-review
+  sha: FIXME_WITH_HASH_AFTER_MERGE
   hooks:
     - id: ansible-review
-      files: \.(yaml|yml)$
 ```
 
-Notice, that this is currently expermiental.
+Notice, that this is currently experimental.
