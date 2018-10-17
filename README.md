@@ -195,9 +195,9 @@ ansible-review containing `hooks.yaml`.
 
 ```yaml
 - repo: https://github.com/willthames/ansible-review
-  sha: FIXME_WITH_HASH_AFTER_MERGE
+  sha: bd2e8b6863dc20d8619418e6817d5793c7ebc687
   hooks:
     - id: ansible-review
 ```
 
-Notice, that this is currently experimental.
+Notice, that this is currently in testing phase.
