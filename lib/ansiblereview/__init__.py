@@ -182,9 +182,9 @@ def classify(filename):
         return Handler(filename)
     if parentdir in ['vars', 'defaults']:
         return RoleVars(filename)
-    if parentdir in ['group_vars']:
+    if 'group_vars' in os.path.dirname(filename).split(os.sep):
         return GroupVars(filename)
-    if parentdir in ['host_vars']:
+    if 'host_vars' in os.path.dirname(filename).split(os.sep):
         return HostVars(filename)
     if parentdir == 'meta':
         return Meta(filename)
