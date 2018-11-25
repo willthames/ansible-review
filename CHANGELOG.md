@@ -1,3 +1,7 @@
+### 0.13.9
+
+Fix reading from stdin in python 3
+
 ### 0.13.8
 
 * Fix missing `get_group_vars`
