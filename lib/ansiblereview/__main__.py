@@ -73,7 +73,11 @@ def main():
                 options.lintdir = lint_dir
 
     if len(args) == 0:
-        candidates = get_candidates_from_diff(sys.stdin)
+        buf = sys.stdin
+        if sys.version_info[0] == 3:
+            """Bypass bytes to unidiff regardless."""
+            buf = buf.buffer
+        candidates = get_candidates_from_diff(buf)
     else:
         candidates = args
 

@@ -40,7 +40,7 @@ from ansiblereview import Result, Error, utils
 
 def indent_checker(filename):
     with codecs.open(filename, mode='rb', encoding='utf-8') as f:
-        indent_regex = re.compile("^(?P<indent>\s*(?:- )?)(?P<rest>.*)$")
+        indent_regex = re.compile(r"^(?P<indent>\s*(?:- )?)(?P<rest>.*)$")
         lineno = 0
         prev_indent = ''
         errors = []
