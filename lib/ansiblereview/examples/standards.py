@@ -2,6 +2,8 @@ import codecs
 import os
 import yaml
 
+from yaml.loader import SafeLoader
+
 from ansiblereview import Result, Error, Standard, lintcheck
 from ansiblereview.utils.yamlindent import yamlreview
 from ansiblereview.inventory import parse, no_vars_in_host_file
@@ -13,6 +15,11 @@ from ansiblereview.tasks import yaml_form_rather_than_key_value
 from ansiblereview.groupvars import same_variable_defined_in_competing_groups
 from ansiblelint.utils import parse_yaml_linenumbers
 
+def vault_stub_constructor(loader, node):
+    return loader.construct_scalar(node)
+
+SafeLoader.add_constructor(u'!vault', vault_stub_constructor)
+SafeLoader.add_constructor(u'!vault-encrypted', vault_stub_constructor)
 
 def rolesfile_contains_scm_in_src(candidate, settings):
     result = Result(candidate.path)
