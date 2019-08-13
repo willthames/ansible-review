@@ -38,7 +38,7 @@ import sys
 from ansiblereview import Result, Error, utils
 
 
-def indent_checker(filename):
+def indent_checker(filename, indent_list_items):
     with codecs.open(filename, mode='rb', encoding='utf-8') as f:
         indent_regex = re.compile(r"^(?P<indent>\s*(?:- )?)(?P<rest>.*)$")
         lineno = 0
@@ -51,18 +51,21 @@ def indent_checker(filename):
                 continue
             curr_indent = match.group('indent')
             offset = len(curr_indent) - len(prev_indent)
-            if offset > 0 and offset != 2:
+            if offset > 0:
                 if match.group('indent').endswith('- '):
-                    errors.append(Error(lineno, "lines starting with '- ' should have same "
-                                  "or less indentation than previous line"))
-                else:
+                    if indent_list_items and offset != 4 and match.group('indent') != '- ':
+                        errors.append(Error(lineno, "indentation should increase by 2 chars (indent_list_items is True)"))
+                    if not indent_list_items and offset != 2:
+                        errors.append(Error(lineno, "lines starting with '- ' should have same "
+                                      "or less indentation than previous line (indent_list_items is False)"))
+                elif offset != 2:
                     errors.append(Error(lineno, "indentation should increase by 2 chars"))
             prev_indent = curr_indent
         return errors
 
 
 def yamlreview(candidate, settings):
-    errors = indent_checker(candidate.path)
+    errors = indent_checker(candidate.path, settings.indent_list_items)
     return Result(candidate.path, errors)
 
 

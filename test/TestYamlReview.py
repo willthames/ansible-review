@@ -14,8 +14,15 @@ class TestYamlReview(unittest.TestCase):
         result = yamlreview(candidate, settings)
         self.assertEqual(len(result.errors), 3)
 
-    def test_yaml_success(self):
-        candidate = Playbook(os.path.join(self.directory, 'yaml_success.yml'))
+    def test_yaml_no_indent_list(self):
+        candidate = Playbook(os.path.join(self.directory, 'yaml_no_indent_list.yml'))
         settings = Settings({})
+        result = yamlreview(candidate, settings)
+        self.assertEqual(len(result.errors), 0)
+
+    def test_yaml_indent_list(self):
+        candidate = Playbook(os.path.join(self.directory, 'yaml_indent_list.yml'))
+        settings = Settings({})
+        settings.indent_list_items = True
         result = yamlreview(candidate, settings)
         self.assertEqual(len(result.errors), 0)

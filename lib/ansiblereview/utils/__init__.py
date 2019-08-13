@@ -148,18 +148,23 @@ class Settings(object):
         self.rulesdir = values.get('rulesdir')
         self.lintdir = values.get('lintdir')
         self.configfile = values.get('configfile')
+        self.indent_list_items = values.get('indent_list_items')
 
 
 def read_config(config_file):
-    config = configparser.RawConfigParser({'standards': None, 'lint': None})
+    config = configparser.RawConfigParser(dict(standards=None, lint=None, indent_list_items=False))
     config.read(config_file)
 
     if config.has_section('rules'):
-        return Settings(dict(rulesdir=config.get('rules', 'standards'),
-                             lintdir=config.get('rules', 'lint'),
-                             configfile=config_file))
+        return Settings(
+                dict(rulesdir=config.get('rules', 'standards'),
+                     lintdir=config.get('rules', 'lint'),
+                     configfile=config_file,
+                     indent_list_items=config.getboolean('rules', 'indent_list_items')
+                     ))
     else:
-        return Settings(dict(rulesdir=None, lintdir=None, configfile=config_file))
+        return Settings(dict(rulesdir=None, lintdir=None,
+                             configfile=config_file, indent_list_items=False))
 
 
 class ExecuteResult(object):

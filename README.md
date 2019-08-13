@@ -98,6 +98,7 @@ You can override the configuration file location with the `-c` flag.
 [rules]
 lint = /path/to/your/ansible/lint/rules
 standards = /path/to/your/standards/rules
+indent_list_items = False
 ```
 
 The standards directory can be overridden with the `-d` argument,

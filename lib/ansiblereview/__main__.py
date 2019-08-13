@@ -49,6 +49,8 @@ def main():
                       help="limit standards to specific names")
     parser.add_option('-v', dest='log_level', action="store_const", default=logging.WARN,
                       const=logging.INFO, help="Show more verbose output")
+    parser.add_option('-y', dest='indent_list_items', action="store_true",
+                      help="Whether YAML lists should be indented")
 
     options, args = parser.parse_args(sys.argv[1:])
     settings = read_config(options.configfile)

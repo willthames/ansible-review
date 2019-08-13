@@ -1,0 +1,13 @@
+- tasks:
+    - block:
+        - name: hello
+          command: echo hello
+        - name: task2
+          debug:
+          msg: hello
+    when: some_var_is_true
+- name: another task
+  debug:
+    msg: another msg
+- fail:
+    msg: this is actually valid indentation

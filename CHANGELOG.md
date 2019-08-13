@@ -1,3 +1,12 @@
+### 0.14.0
+
+* Support inventory parsing for ansible>=2.4.0
+* Drop support for ansible 2.3 and below
+* Support `group_vars` and `host_vars` directories
+* YAML list indentation is now slightly configurable
+* Remove PlayContainsLogic standard check from examples (#76)
+* Now works with vaulted inventory files
+
 ### 0.13.9
 
 Fix reading from stdin in python 3
