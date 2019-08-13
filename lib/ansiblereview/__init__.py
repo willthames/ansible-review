@@ -178,7 +178,7 @@ class Rolesfile(Unversioned):
 
 def classify(filename):
     parentdir = os.path.basename(os.path.dirname(filename))
-    if 'README' in filename:
+    if 'README' in filename or filename.endswith('.md') or filename.endswith('txt'):
         return Doc(filename)
     if parentdir in ['tasks']:
         return Task(filename)
