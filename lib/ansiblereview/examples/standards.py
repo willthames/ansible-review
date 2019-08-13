@@ -186,12 +186,6 @@ files_should_not_be_purposeless = Standard(dict(
     types=["playbook", "task", "handler", "rolevars", "defaults", "meta"]
 ))
 
-playbooks_should_not_contain_logic = Standard(dict(
-    name="Playbooks should not contain logic (vars, tasks, handlers)",
-    check=lintcheck('EXTRA0008'),
-    types=["playbook"]
-))
-
 host_vars_should_not_be_present = Standard(dict(
     name="Host vars should not be present",
     check=host_vars_exist,
@@ -310,7 +304,6 @@ standards = [
     use_yaml_rather_than_key_value,
     roles_scm_not_in_src,
     files_should_not_be_purposeless,
-    playbooks_should_not_contain_logic,
     host_vars_should_not_be_present,
     with_items_bare_words,
     file_permissions_are_octal,
