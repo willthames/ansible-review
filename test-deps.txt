@@ -4,3 +4,4 @@ nose
 pep8-naming
 tox
 wheel
+epdb

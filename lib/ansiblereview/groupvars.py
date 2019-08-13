@@ -1,42 +1,16 @@
-import ansible.inventory
 from ansiblereview import Result, Error
 from ansible.errors import AnsibleError
+from ansiblereview.inventory import InventoryManager
 import inspect
 import os
-
-try:
-    import ansible.parsing.dataloader
-    from ansible.vars.manager import VariableManager
-    ANSIBLE = 2
-except ImportError:
-    try:
-        from ansible.vars.manager import VariableManager
-        ANSIBLE = 2
-    except ImportError:
-        ANSIBLE = 1
-
 
 _vars = dict()
 _inv = None
 
 
-def get_group_vars(group, inventory):
-    try:
-        from ansible.inventory.helpers import get_group_vars
-        return get_group_vars(inventory.groups.values())
-    except ImportError:
-        pass
-    # http://stackoverflow.com/a/197053
-    vars = inspect.getargspec(inventory.get_group_vars)
-    if 'return_results' in vars[0]:
-        return inventory.get_group_vars(group, return_results=True)
-    else:
-        return inventory.get_group_vars(group)
-
-
 def remove_inherited_and_overridden_vars(vars, group, inventory):
     if group not in _vars:
-        _vars[group] = get_group_vars(group, inventory)
+        _vars[group] = inventory.get_group_vars(group)
     gv = _vars[group]
     for (k, v) in vars.items():
         if k in gv:
@@ -48,7 +22,7 @@ def remove_inherited_and_overridden_vars(vars, group, inventory):
 
 def remove_inherited_and_overridden_group_vars(group, inventory):
     if group not in _vars:
-        _vars[group] = get_group_vars(group, inventory)
+        _vars[group] = inventory.get_group_vars(group)
     for ancestor in group.get_ancestors():
         remove_inherited_and_overridden_vars(_vars[group], ancestor, inventory)
 
@@ -56,32 +30,21 @@ def remove_inherited_and_overridden_group_vars(group, inventory):
 def same_variable_defined_in_competing_groups(candidate, options):
     result = Result(candidate.path)
     # assume that group_vars file is under an inventory *directory*
-    invfile = os.path.dirname(os.path.dirname(candidate.path))
     global _inv
+    invfile = os.path.dirname(os.path.dirname(candidate.path))
+    groupname = os.path.basename(candidate.path)
+    if invfile.endswith('group_vars'):
+        invfile = os.path.dirname(invfile)
+        groupname = os.path.basename(os.path.dirname(candidate.path))
 
     try:
-        if ANSIBLE > 1:
-            loader = ansible.parsing.dataloader.DataLoader()
-            try:
-                from ansible.inventory.manager import InventoryManager
-                inv = _inv or InventoryManager(loader=loader, sources=invfile)
-            except ImportError:
-                var_manager = VariableManager()
-                inv = _inv or ansible.inventory.Inventory(loader=loader,
-                                                          variable_manager=var_manager,
-                                                          host_list=invfile)
-            _inv = inv
-        else:
-            inv = _inv or ansible.inventory.Inventory(invfile)
-            _inv = inv
+        inv = _inv or InventoryManager(invfile).inventory
+        _inv = inv
     except AnsibleError as e:
         result.errors = [Error(None, "Inventory is broken: %s" % e.message)]
         return result
 
-    if hasattr(inv, 'groups'):
-        group = inv.groups.get(os.path.basename(candidate.path))
-    else:
-        group = inv.get_group(os.path.basename(candidate.path))
+    group = inv.get_group(groupname)
     if not group:
         # group file exists in group_vars but no related group
         # in inventory directory
