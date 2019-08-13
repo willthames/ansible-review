@@ -9,7 +9,7 @@
 
 ### 0.13.9
 
-Fix reading from stdin in python 3
+* Fix reading from stdin in python 3
 
 ### 0.13.8
 
