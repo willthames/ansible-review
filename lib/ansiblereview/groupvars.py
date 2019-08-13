@@ -1,7 +1,6 @@
 from ansiblereview import Result, Error
 from ansible.errors import AnsibleError
 from ansiblereview.inventory import InventoryManager
-import inspect
 import os
 
 _vars = dict()

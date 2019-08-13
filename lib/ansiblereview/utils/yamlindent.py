@@ -54,10 +54,12 @@ def indent_checker(filename, indent_list_items):
             if offset > 0:
                 if match.group('indent').endswith('- '):
                     if indent_list_items and offset != 4 and match.group('indent') != '- ':
-                        errors.append(Error(lineno, "indentation should increase by 2 chars (indent_list_items is True)"))
+                        errors.append(Error(lineno, "indentation should increase by 2 chars "
+                                            "(indent_list_items is True)"))
                     if not indent_list_items and offset != 2:
                         errors.append(Error(lineno, "lines starting with '- ' should have same "
-                                      "or less indentation than previous line (indent_list_items is False)"))
+                                                    "or less indentation than previous line "
+                                                    "(indent_list_items is False)"))
                 elif offset != 2:
                     errors.append(Error(lineno, "indentation should increase by 2 chars"))
             prev_indent = curr_indent
