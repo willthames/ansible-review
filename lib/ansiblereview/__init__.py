@@ -86,10 +86,12 @@ class RoleFile(Candidate):
     def __init__(self, filename):
         super(RoleFile, self).__init__(filename)
         self.version = None
+        self.has_meta = False
         parentdir = os.path.dirname(os.path.abspath(filename))
         while parentdir != os.path.dirname(parentdir):
             meta_file = os.path.join(parentdir, "meta", "main.yml")
             if os.path.exists(meta_file):
+                self.has_meta = True
                 self.version = find_version(meta_file)
                 if self.version:
                     break

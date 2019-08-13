@@ -97,11 +97,12 @@ def review(candidate, settings, lines=None):
         candidate.version = standards_latest(standards.standards)
         if candidate.expected_version:
             if isinstance(candidate, ansiblereview.RoleFile):
-                warn("%s %s is in a role that contains a meta/main.yml without a declared "
-                     "standards version. "
-                     "Using latest standards version %s" %
-                     (type(candidate).__name__, candidate.path, candidate.version),
-                     settings)
+                if candidate.has_meta:
+                    warn("%s %s is in a role that contains a meta/main.yml without a declared "
+                         "standards version. "
+                         "Using latest standards version %s" %
+                         (type(candidate).__name__, candidate.path, candidate.version),
+                         settings)
             else:
                 warn("%s %s does not present standards version. "
                      "Using latest standards version %s" %
