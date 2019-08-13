@@ -178,6 +178,8 @@ class Rolesfile(Unversioned):
 
 def classify(filename):
     parentdir = os.path.basename(os.path.dirname(filename))
+    if 'README' in filename:
+        return Doc(filename)
     if parentdir in ['tasks']:
         return Task(filename)
     if parentdir in ['handlers']:
@@ -205,8 +207,6 @@ def classify(filename):
         return File(filename)
     if filename.endswith('.yml') or filename.endswith('.yaml'):
         return Playbook(filename)
-    if 'README' in filename:
-        return Doc(filename)
     return None
 
 
