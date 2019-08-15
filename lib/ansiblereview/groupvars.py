@@ -11,15 +11,17 @@ def remove_inherited_and_overridden_vars(vars, group, inventory):
     if group not in _vars:
         _vars[group] = inventory.get_group_vars(group)
     gv = _vars[group]
+    newvars = vars.copy()
     for (k, v) in vars.items():
         if k in gv:
             try:
                 if gv[k] == v:
-                    vars.pop(k)
+                    newvars.pop(k)
                 else:
                     gv.pop(k)
             except AnsibleError:
                 gv.pop(k)
+    vars = newvars
 
 
 def remove_inherited_and_overridden_group_vars(group, inventory):
