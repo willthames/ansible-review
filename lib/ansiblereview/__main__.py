@@ -27,7 +27,8 @@ def get_candidates_from_diff(difftext):
         else:
             lines = ",".join(["%s-%s" % (hunk.target_start, hunk.target_start + hunk.target_length)
                               for hunk in patchedfile])
-            candidates.append("%s:%s" % (patchedfile.path, lines))
+            # strip off leading 'b/' from target file
+            candidates.append("%s:%s" % (patchedfile.target_file[2:], lines))
     return candidates
 
 
