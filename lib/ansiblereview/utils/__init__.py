@@ -152,7 +152,7 @@ class Settings(object):
 
 
 def read_config(config_file):
-    config = configparser.RawConfigParser(dict(standards=None, lint=None, indent_list_items=False))
+    config = configparser.RawConfigParser(dict(standards=None, lint=None, indent_list_items="False"))
     config.read(config_file)
 
     if config.has_section('rules'):
