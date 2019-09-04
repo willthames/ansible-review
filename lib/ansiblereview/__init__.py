@@ -153,6 +153,14 @@ class Code(Unversioned):
     pass
 
 
+class PythonCode(Code):
+    pass
+
+
+class PowershellCode(Code):
+    pass
+
+
 class Template(RoleFile):
     pass
 
@@ -188,9 +196,15 @@ def classify(filename):
         return HostVars(filename)
     if parentdir == 'meta':
         return Meta(filename)
-    if parentdir in ['library', 'lookup_plugins', 'callback_plugins',
-                     'filter_plugins'] or filename.endswith('.py'):
+    if parentdir in ['library'] and filename.endswith('.ps1'):
+        return PowershellCode(filename)
+    elif parentdir in ['library'] and filename.endswith('.py'):
+        return PythonCode(filename)
+    elif parentdir in ['library']:
         return Code(filename)
+    if parentdir in ['lookup_plugins', 'callback_plugin',
+                     'filter_plugins'] or filename.endswith('.py'):
+        return PythonCode(filename)
     if parentdir in ['inventory']:
         return Inventory(filename)
     if 'rolesfile' in filename or 'requirements' in filename:

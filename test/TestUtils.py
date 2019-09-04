@@ -21,7 +21,7 @@
 import os
 import unittest
 
-from ansiblereview import Playbook, Task, Code
+from ansiblereview import Playbook, Task, PythonCode
 import ansiblereview.code as code
 
 
@@ -40,6 +40,6 @@ class TestUtils(unittest.TestCase):
 
     def test_code_passes_flake8(self):
         # run flake8 against this source file
-        candidate = Code(__file__.replace('.pyc', '.py'))
+        candidate = PythonCode(__file__.replace('.pyc', '.py'))
         result = code.code_passes_flake8(candidate, None)
         self.assertEqual(len(result.errors), 0)
