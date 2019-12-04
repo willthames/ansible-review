@@ -5,14 +5,14 @@ import yaml
 
 try:
     import ansible.parsing.dataloader
-    from ansible.vars.manager import VariableManager
-    ANSIBLE = 2
 except ImportError:
+    ANSIBLE = 1
+else:
+    ANSIBLE = 2
     try:
-        from ansible.vars import VariableManager
-        ANSIBLE = 2
+        from ansible.vars.manager import VariableManager
     except ImportError:
-        ANSIBLE = 1
+        from ansible.vars import VariableManager
 
 
 def no_vars_in_host_file(candidate, options):
