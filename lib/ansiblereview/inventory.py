@@ -38,5 +38,9 @@ def parse(candidate, options):
         else:
             ansible.inventory.Inventory(candidate.path)
     except Exception as e:
-        result.errors = [Error(None, "Inventory is broken: %s" % e.message)]
+        if hasattr(e, 'message'):
+            message = e.message
+        else:
+            message = str(e)
+        result.errors = [Error(None, "Inventory is broken: %s" % message)]
     return result
