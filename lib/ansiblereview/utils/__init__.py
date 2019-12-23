@@ -16,7 +16,7 @@ import subprocess
 import sys
 
 try:
-    import ConfigParser as configparser
+    import ConfigParser as configparser  # noqa: N813
 except ImportError:
     import configparser
 
