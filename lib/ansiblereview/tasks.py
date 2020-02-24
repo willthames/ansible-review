@@ -19,6 +19,11 @@ def yaml_form_rather_than_key_value(candidate, settings):
                 continue
             if isinstance(task[action], dict):
                 continue
+            # allow skipping based on tag e.g. if using splatting
+            # https://docs.ansible.com/ansible/devel/reference_appendices\
+            # /faq.html#argsplat-unsafe
+            if 'skip_ansible_lint' in (task.get('tags') or []):
+                continue
             # strip additional newlines off task[action]
             if task[action].strip().split() != arguments:
                 errors.append(Error(task['__line__'], "Task arguments appear "
