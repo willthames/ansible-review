@@ -1,4 +1,11 @@
-from ansiblelint import default_rulesdir, RulesCollection
+try:
+    from ansiblelint.constants import DEFAULT_RULESDIR
+except ImportError:
+    from ansiblelint import default_rulesdir as DEFAULT_RULESDIR
+try:
+    from ansiblelint.rules import RulesCollection
+except ImportError:
+    from ansiblelint import RulesCollection
 import codecs
 from functools import partial
 import re
@@ -13,6 +20,9 @@ except ImportError:
         from ansible.plugins import module_loader
     except ImportError:
         from ansible.utils import module_finder as module_loader
+
+
+RC_HAS_CREATE_FROM_DIR = hasattr(RulesCollection, "create_from_directory")
 
 
 class AnsibleReviewFormatter(object):
@@ -215,9 +225,14 @@ def lintcheck(rulename):
 def ansiblelint(rulename, candidate, settings):
     result = Result(candidate.path)
     rules = RulesCollection()
-    rules.extend(RulesCollection.create_from_directory(default_rulesdir))
-    if settings.lintdir:
-        rules.extend(RulesCollection.create_from_directory(settings.lintdir))
+    if RC_HAS_CREATE_FROM_DIR:
+        rules.extend(RulesCollection.create_from_directory(DEFAULT_RULESDIR))
+        if settings.lintdir:
+            rules.extend(RulesCollection.create_from_directory(settings.lintdir))
+    else:
+        rules.extend(RulesCollection([DEFAULT_RULESDIR]))
+        if settings.lintdir:
+            rules.extend(RulesCollection([settings.lintdir]))
 
     fileinfo = dict(path=candidate.path, type=candidate.filetype)
     matches = rules.run(fileinfo, rulename.split(','))
